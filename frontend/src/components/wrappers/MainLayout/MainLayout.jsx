@@ -5,7 +5,7 @@ import Footer from '../../commons/Footer/Footer';
 const MainLayout = () => {
   return (
     <div className="min-h-screen flex flex-col font-sans">
-      <Header />
+      {/* <Header /> */}
       <main className="flex-grow">
         {/* This is where your different pages will load */}
         <Outlet />

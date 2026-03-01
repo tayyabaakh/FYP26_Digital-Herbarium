@@ -1,33 +1,75 @@
 import React from 'react';
 
-const Home = () => {
+const ForestSchool = () => {
   return (
-    <div className="bg-white">
-      {/* --- HERO SECTION --- */}
-      <section className="relative h-[500px] bg-black text-white flex flex-col items-center justify-center px-4 overflow-hidden">
-        {/* Background Image (Mocking the Lysimachia arvensis image) */}
-        <div className="absolute inset-0 opacity-60">
-          <img 
-            src="https://images.unsplash.com/photo-1501004318641-729e8e3986ff?auto=format&fit=crop&q=80&w=1600" 
-            alt="Botanical background"
-            className="w-full h-full object-cover"
-          />
-        </div>
+    <div className="bg-background-light dark:bg-background-dark font-display text-white overflow-hidden min-h-screen">
+      {/* 1. Added the direct link to the icon font just in case */}
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
 
-        <div className="relative z-10 text-center max-w-4xl">
-          <h1 className="text-4xl md:text-5xl font-light mb-4">
-            Welcome to Plants of the World Online
-          </h1>
-          <p className="text-lg md:text-xl font-light mb-8">
-            Browse 1,442,000 global plant names, 530,400 detailed descriptions, and 497,200 images
-          </p>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        .hero-bg {
+          background-image: url(https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80);
+          background-size: cover;
+                     background-position: center;
+        }
+      
+.blurred-side {
+  backdrop-filter: blur(40px)  brightness(0.7);
+  background-color: rgba(255, 255, 255, 0.3); /* This adds the white tint */
+}
+        .text-reveal {
+          background: url(https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80);
+          background-size: cover;
+          background-position: center;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          filter: brightness(0.7) contrast(1.2);
+        }
+        /* Ensure icons are forced to render on top */
+        .material-icons-outlined {
+          display: inline-block;
+          vertical-align: middle;
+          line-height: 1;
+        }
+      `}} />
+
+      <main className="relative h-screen w-full hero-bg overflow-hidden">
+        {/* Left Side Blur - Fixed at z-10 */}
+        <div className="absolute inset-y-0 left-0 w-[42%] blurred-side  z-10 border-r border-white/10"></div>
+
+        {/* Content Container - Fixed at z-20 to be ABOVE the blur */}
+        <div className="relative z-20 h-full flex flex-col px-12 py-10">
+          <header className="flex justify-between items-center">
+            <div className="flex flex-col items-center">
+              <div className="flex items-center gap-1">
+                {/* 2. Added 'relative z-30' to icons specifically to ensure they pop */}
+                <span className="material-icons-outlined text-4xl relative z-30">terrain</span>
+                <span className="material-icons-outlined text-4xl relative z-30 -ml-5 mt-1">change_history</span>
+              </div>
+              <span className="text-[10px] tracking-[0.3em] font-bold uppercase mt-1">ForestSchool</span>
+            </div>
+
+            <nav className="hidden md:flex gap-10 text-md font-bold tracking-widest text-white/80">
+              <a className="hover:text-white transition-colors" href="#">HOME</a>
+              <a className="hover:text-white transition-colors" href="#">ABOUT</a>
+              <a className="hover:text-white transition-colors" href="#">SERVICES</a>
+              <a className="hover:text-white transition-colors" href="#">TRIPE</a>
+              <a className="hover:text-white transition-colors" href="#">FAQ</a>
+            </nav>
+          </header>
           
-          {/* Search Bar */}
-          <div className="relative w-full max-w-2xl mx-auto">
+
+            {/* Search Bar */}
+         
+        {/* </div> */}
+
+          <div className="flex-1 flex flex-col justify-center relative">
+             <div className="relative w-full max-w-2xl mx-auto mb-10">
             <input 
               type="text" 
               placeholder="Search..." 
-              className="w-full py-4 px-6 rounded-full text-black text-lg focus:outline-none focus:ring-2 focus:ring-kewTeal shadow-xl"
+              className="w-full py-4  px-6 rounded-full  backdrop-blur-sm bg-white/50 text-black text-lg focus:outline-none focus:ring-gray-500 focus:ring-1  shadow-xl"
             />
             <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-kewTeal">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -35,60 +77,60 @@ const Home = () => {
               </svg>
             </button>
           </div>
-        </div>
+            <div className="max-w-7xl mx-auto w-full">
+              <h1 className="text-[7rem] font-black leading-[0.9]  tracking-tighter justify-center flex items-center">
+                <span className="text-reveal">DIGITAL </span>
+                <span className="text-white drop-shadow-2xl"> HERBARIUM</span>
+              </h1>
+            </div>
 
-        {/* Featured Credit (Bottom Right) */}
-        <div className="absolute bottom-4 right-8 text-right text-xs text-gray-300 hidden md:block">
-          <p className="italic">Featured: Lysimachia arvensis</p>
-          <p>Image from Stuppy & Kesseler</p>
-          <p>© Papadakis Publisher</p>
-        </div>
-      </section>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-4">
+              <div className="w-2 h-2 rounded-full bg-white/30"></div>
+              <div className="w-2 h-2 rounded-full bg-white"></div>
+              <div className="w-2 h-2 rounded-full bg-white/30"></div>
+              <div className="w-2 h-2 rounded-full bg-white/30"></div>
+            </div>
+          </div>
 
-      {/* --- FEATURED PLANTS SECTION --- */}
-      <section className="max-w-7xl mx-auto px-8 py-16">
-        <div className="flex justify-between items-end mb-10 border-b border-gray-100 pb-4">
-          <h2 className="text-3xl font-light text-gray-800">Featured plants</h2>
-          <a href="#" className="text-kewTeal font-semibold hover:underline text-sm">View all plants</a>
-        </div>
+          <div className="flex mb-8">
+            <div className="w-[42%]">
+              <p className="text-white/70 max-w-sm text-md leading-relaxed mb-5">
+                There Is A Moment In The Life Of Any Times You Want. That Is Time To Visit This Forest
+              </p>
+              <a className="inline-flex items-center gap-4 text-sm font-bold tracking-widest hover:gap-6 transition-all group" href="#">
+                READ MORE
+                {/* Added 'text-white' to ensure the color isn't inherited as transparent */}
+                <span className="material-icons-outlined text-white">east</span>
+              </a>
+            </div>
+          </div>
 
-        {/* Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          <PlantCard 
-            image="https://images.unsplash.com/photo-1599023344847-d1a741c449a2?auto=format&fit=crop&q=80&w=800"
-            title="Basella alba L."
-            description="The native range of this species is Tropical Asia. It is a climbing subshrub and grows primarily in the wet tropical biome. It is used as animal food and a medicine, has environmental uses and social uses and for food."
-          />
-          <PlantCard 
-            image="https://images.unsplash.com/photo-1508313880080-c4bef0730395?auto=format&fit=crop&q=80&w=800"
-            title="Delonix regia (Bojer ex Hook.) Raf."
-            description="The native range of this species is N. & W. Madagascar. It is a tree and grows primarily in the seasonally dry tropical biome. It is used as animal food, a poison, a medicine and invertebrate food, has environmental uses and for fuel and food."
-          />
-          <PlantCard 
-            image="https://images.unsplash.com/photo-1463123081488-789f998ac9c4?auto=format&fit=crop&q=80&w=800"
-            title="Digitalis purpurea L."
-            description="The native range of this species is W. & SW. Europe to N. Morocco. It is a biennial or perennial and grows primarily in the temperate biome. It is used as a poison and a medicine, has environmental uses and for food."
-          />
+          <div className="flex justify-between items-end">
+            <div className="flex gap-4">
+              <div className="w-28 h-28 rounded-2xl overflow-hidden border border-white/10">
+                <img alt="Forest 1" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=400" />
+              </div>
+              <div className="w-28 h-28 rounded-2xl overflow-hidden border border-white/10">
+                <img alt="Forest 2" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400" />
+              </div>
+              <div className="w-28 h-28 rounded-3xl overflow-hidden border border-white/10 shadow-xl">
+                <img alt="Forest 3" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=400" />
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button className="w-14 h-14 rounded-3xl bg-white/10 hover:bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/10 transition-colors">
+                <span className="material-icons-outlined text-white">west</span>
+              </button>
+              <button className="w-14 h-14 rounded-3xl bg-white/20 hover:bg-white/30 backdrop-blur-md flex items-center justify-center border border-white/20 transition-colors">
+                <span className="material-icons-outlined text-white">east</span>
+              </button>
+            </div>
+          </div>
         </div>
-      </section>
+      </main>
     </div>
   );
 };
 
-// Internal component for the Plant Cards
-const PlantCard = ({ image, title, description }) => (
-  <div className="flex flex-col group cursor-pointer">
-    <div className="overflow-hidden mb-4 h-52">
-      <img src={image} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-    </div>
-    <span className="text-xs font-bold text-kewTeal uppercase tracking-widest mb-2">Species</span>
-    <h3 className="text-xl font-serif font-semibold text-gray-900 mb-3 group-hover:text-kewTeal transition-colors">
-      {title}
-    </h3>
-    <p className="text-gray-600 text-sm leading-relaxed line-clamp-4">
-      {description}
-    </p>
-  </div>
-);
-
-export default Home;
+export default ForestSchool;
