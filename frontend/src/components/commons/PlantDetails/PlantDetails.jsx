@@ -21,9 +21,7 @@ const PlantDetail = () => {
       {/* --- TOP SECTION: Breadcrumbs & Main Info --- */}
       <div className="flex flex-col md:flex-row border-b border-gray-200">
         <div className="flex-1 p-8 md:p-16 bg-[#f8fcfc]">
-          <nav className="text-sm text-gray-600 mb-6 italic">
-             {plant.family}  <span className="mx-2 font-sans not-italic text-xs"> &gt; </span> {plant.genus}
-          </nav>
+         
           
           <h1 className="text-4xl font-serif italic mb-2">
             {plant.species} <span className="not-italic font-sans text-gray-400 font-light text-2xl">{plant.author}</span>

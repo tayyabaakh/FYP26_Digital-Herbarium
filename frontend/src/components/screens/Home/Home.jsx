@@ -1,6 +1,7 @@
 import React from 'react';
-
+import { Link, useLocation } from 'react-router-dom';
 const ForestSchool = () => {
+  const location = useLocation();
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-white overflow-hidden min-h-screen">
       {/* 1. Added the direct link to the icon font just in case */}
@@ -12,6 +13,7 @@ const ForestSchool = () => {
           background-image: url(https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80);
           background-size: cover;
                      background-position: center;
+                      backdrop-filter: blur(40px)  brightness(0.7);
         }
       
 .blurred-side {
@@ -35,48 +37,30 @@ const ForestSchool = () => {
       `}} />
 
       <main className="relative h-screen w-full hero-bg overflow-hidden">
+        {/* --- NEW: Blurred Background Layer --- */}
+        <div className="absolute inset-0 z-0 hero-bg scale-105 blur-[2px] brightness-[0.8]"></div>
         {/* Left Side Blur - Fixed at z-10 */}
         <div className="absolute inset-y-0 left-0 w-[42%] blurred-side  z-10 border-r border-white/10"></div>
 
         {/* Content Container - Fixed at z-20 to be ABOVE the blur */}
         <div className="relative z-20 h-full flex flex-col px-12 py-10">
-          <header className="flex justify-between items-center">
-            <div className="flex flex-col items-center">
-              <div className="flex items-center gap-1">
-                {/* 2. Added 'relative z-30' to icons specifically to ensure they pop */}
-                <span className="material-icons-outlined text-4xl relative z-30">terrain</span>
-                <span className="material-icons-outlined text-4xl relative z-30 -ml-5 mt-1">change_history</span>
-              </div>
-              <span className="text-[10px] tracking-[0.3em] font-bold uppercase mt-1">ForestSchool</span>
-            </div>
-
-            <nav className="hidden md:flex gap-10 text-md font-bold tracking-widest text-white/80">
-              <a className="hover:text-white transition-colors" href="#">HOME</a>
-              <a className="hover:text-white transition-colors" href="#">ABOUT</a>
-              <a className="hover:text-white transition-colors" href="#">SERVICES</a>
-              <a className="hover:text-white transition-colors" href="#">TRIPE</a>
-              <a className="hover:text-white transition-colors" href="#">FAQ</a>
-            </nav>
-          </header>
           
 
-            {/* Search Bar */}
-         
-        {/* </div> */}
+
 
           <div className="flex-1 flex flex-col justify-center relative">
-             <div className="relative w-full max-w-2xl mx-auto mb-10">
-            <input 
-              type="text" 
-              placeholder="Search..." 
-              className="w-full py-4  px-6 rounded-full  backdrop-blur-sm bg-white/50 text-black text-lg focus:outline-none focus:ring-gray-500 focus:ring-1  shadow-xl"
-            />
-            <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-kewTeal">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
-              </svg>
-            </button>
-          </div>
+            <div className="relative w-full max-w-2xl mx-auto mb-10">
+              <input
+                type="text"
+                placeholder="Search..."
+                className="w-full py-4  px-6 rounded-full  backdrop-blur-sm bg-white/50 text-black text-lg focus:outline-none focus:ring-gray-500 focus:ring-1  shadow-xl"
+              />
+              <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-kewTeal">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
+                </svg>
+              </button>
+            </div>
             <div className="max-w-7xl mx-auto w-full">
               <h1 className="text-[7rem] font-black leading-[0.9]  tracking-tighter justify-center flex items-center">
                 <span className="text-reveal">DIGITAL </span>
