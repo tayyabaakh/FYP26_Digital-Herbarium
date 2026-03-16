@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainLayout from './components/wrappers/MainLayout/MainLayout';
 import Home from './components/screens/Home/Home';
 import PlantDetail from './components/commons/PlantDetails/PlantDetails';
+// import PlantDetails from './components/commons/PlantDetails/PlantDetails';
 
 // Dummy components for now
 // const Home = () => <div className="p-10 text-center text-2xl">Search the Herbarium...</div>;
