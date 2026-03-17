@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainLayout from './components/wrappers/MainLayout/MainLayout';
 import Home from './components/screens/Home/Home';
+import PlantDetail from './components/commons/PlantDetails/PlantDetails';
+// import PlantDetails from './components/commons/PlantDetails/PlantDetails';
 import PlantDatabase from './components/screens/Home/PlantDatabase';
 import About from './components/screens/Home/About';
 import FacultySection from './components/screens/Home/FacultyandStaff';
@@ -34,7 +36,8 @@ function App() {
     <Route path="guidelines" element={<Guidlines />} />
 
     <Route path="contact" element={<ContactPage />} />
-    {/* <Route path="plantdetail" element={<PlantDetail/>} /> */}
+  
+<Route path="/plant-database/:id" element={<PlantDetail />} />
   </Route>
 </Routes>
     </BrowserRouter>
