@@ -9,6 +9,8 @@ import FacultySection from './components/screens/Home/FacultyandStaff';
 import ContactPage from './components/screens/Home/Contact';
 import PlantContributor from './components/screens/Home/PlantContributor';
 import Guidlines from './components/screens/Home/Guidlines';
+import PlantListing from './components/commons/PlantListing/PlantListing';
+import PlantsListing from './components/screens/Home/PlantsListing';
 
 // Dummy components for now
 // const Home = () => <div className="p-10 text-center text-2xl">Search the Herbarium...</div>;
@@ -24,7 +26,11 @@ function App() {
     
     <Route path="home" element={<Home />} />
     <Route path="about" element={<About />} />
+    <Route path="listing" element={<PlantsListing />} />
+
+
     <Route path="plant-database" element={<PlantDatabase />} />
+
     <Route path="faculty-and-staff" element={<FacultySection />} />
     <Route path="plant-contributor" element={<PlantContributor />} />
     <Route path="guidelines" element={<Guidlines />} />
