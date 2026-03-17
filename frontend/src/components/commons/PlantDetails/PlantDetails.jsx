@@ -6,7 +6,7 @@ import GeneralCardDetail from '../GeneralCardDetail/GeneralCardDetail';
 
 const PlantDetail = ({ plantData = {
   species: "Quercus robur",
-  author: "L.",
+  author: "L. Johnwick",
   commonName: "Common Oak",
   family: "Fagaceae",
   habit: "Large deciduous tree",
@@ -38,12 +38,12 @@ const PlantDetail = ({ plantData = {
   ];
 
   return (
-    <main className="flex-1 px-6 py-8 lg:px-20 max-w-[1440px] mx-auto w-full font-display">
+    <main className="flex-1 px-10 py-30 lg:px-20 max-w-360 mx-auto w-full font-display  bg-black">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-black flex items-center gap-3">
-            {plantData.species} <span className="text-lg font-normal text-slate-900 dark:text-black">{plantData.author}</span>
+          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white flex items-center gap-3">
+            {plantData.species} <span className="text-lg font-normal text-slate-900 dark:text-white">{plantData.author}</span>
           </h1>
         </div>
         <div className="flex gap-3">
