@@ -9,7 +9,7 @@ import FacultySection from './components/screens/Home/FacultyandStaff';
 import ContactPage from './components/screens/Home/Contact';
 import PlantContributor from './components/screens/Home/PlantContributor';
 import Guidlines from './components/screens/Home/Guidlines';
-import PlantListing from './components/commons/PlantListing/PlantListing';
+// import PlantListing from './components/commons/PlantListing/PlantListing';
 import PlantsListing from './components/screens/Home/PlantsListing';
 
 // Dummy components for now
@@ -36,7 +36,7 @@ function App() {
     <Route path="guidelines" element={<Guidlines />} />
 
     <Route path="contact" element={<ContactPage />} />
-    <Route path="plantdetail" element={<PlantDetail/>} />
+    <Route path="plantdetail/:id" element={<PlantDetail/>} />
   </Route>
 </Routes>
     </BrowserRouter>

@@ -1,11 +1,11 @@
 const Footer = () => {
   return (
-         <footer className="bg-black/40 backdrop-blur-xl border-t border-white/5 py-16 px-6 md:px-20 mt-20">
+         <footer className="bg-black backdrop-blur-xl border-t border-white/5 py-16 px-6 md:px-20 ">
         <div className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-16">
           <div className="flex flex-col gap-6">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-white/50">eco</span>
-              <span className="text-xl font-bold uppercase tracking-[0.3em]">KUH</span>
+              <span className="material-symbols-outlined text-white">eco</span>
+              <span className="text-xl text-white font-bold uppercase tracking-[0.3em]">KUH</span>
             </div>
             <p className="text-white/40 text-sm leading-relaxed max-w-[300px]">
               Advancing the understanding of Karachi's flora through digital excellence and botanical preservation.
@@ -13,7 +13,7 @@ const Footer = () => {
           </div>
           
           <div className="flex flex-col gap-6">
-            <h5 className="text-sm font-black uppercase tracking-widest">Contact</h5>
+            <h5 className="text-sm font-bold text-white uppercase tracking-widest">Contact</h5>
             <ul className="flex flex-col gap-4 text-sm text-white/60 font-medium">
               <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer">
                 <span className="material-symbols-outlined text-base">mail</span>
@@ -31,9 +31,9 @@ const Footer = () => {
           </div>
 
           <div className="flex flex-col gap-6">
-            <h5 className="text-sm font-black uppercase tracking-widest">Newsletter</h5>
+            <h5 className="text-sm font-black text-white uppercase tracking-widest">Newsletter</h5>
             <div className="flex gap-2">
-              <input className="bg-white/5 border border-white/10 rounded-full px-5 py-3 text-xs w-full outline-none focus:ring-1 focus:ring-white transition-all" placeholder="Your email" type="email"/>
+              <input className="bg-white/5 border border-white rounded-full px-5 py-3 text-xs w-full outline-none focus:ring-1 focus:ring-white text-white transition-all" placeholder="Your email" type="email"/>
               <button className="bg-white text-black p-3 rounded-full flex items-center justify-center hover:scale-105 transition-transform">
                 <span className="material-symbols-outlined">east</span>
               </button>
