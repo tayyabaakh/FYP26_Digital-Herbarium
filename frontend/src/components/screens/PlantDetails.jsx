@@ -1,9 +1,10 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom'; // To get the ID from URL
-import { fetchPlantById } from '../../../api/api'; // Use the named export
-import ImageDisplayCard from '../ImageDetailCard/ImageDetailCard';
-import LocationDisplayCard from '../LocationDisplayCard/LocationDisplayCard';
-import GeneralCardDetail from '../GeneralCardDetail/GeneralCardDetail';
+import { fetchPlantById } from '../../api/api'; // Use the named export
+import ImageDisplayCard from '../commons/ImageDetailCard/ImageDetailCard';
+import LocationDisplayCard from '../commons/LocationDisplayCard/LocationDisplayCard';
+import GeneralCardDetail from '../commons/GeneralCardDetail/GeneralCardDetail';
 
 const PlantDetail = () => {
   const { id } = useParams(); // Get specimen_id_gh_number from URL params
