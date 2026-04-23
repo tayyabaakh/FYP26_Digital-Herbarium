@@ -6,7 +6,14 @@ const plantRoutes = require('./routes/plantRoutes');
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://fyp-26-digital-herbarium-s1tc.vercel.app', // YOUR ACTUAL VERCEL URL
+    'http://localhost:3000' // Keep this for local development
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 app.use(express.json());
 
 // Routes
