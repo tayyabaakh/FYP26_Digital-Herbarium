@@ -9,7 +9,7 @@ const app = express();
 app.use(cors({
   origin: [
     'https://fyp-26-digital-herbarium-s1tc.vercel.app', // YOUR ACTUAL VERCEL URL
-    'http://localhost:3000' // Keep this for local development
+    // Keep this for local development
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
