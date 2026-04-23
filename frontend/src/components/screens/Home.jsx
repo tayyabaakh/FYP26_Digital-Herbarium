@@ -159,7 +159,7 @@ const ForestSchool = () => {
               <p className="text-white/70 max-w-sm text-md leading-relaxed mb-5">
                 Explore the vast collection of botanical specimens in our Digital Herbarium. A journey through nature, preserved for science.
               </p>
-              <a className="inline-flex items-center gap-4 text-sm font-bold tracking-widest hover:gap-6 transition-all group" href="#">
+              <a className="inline-flex items-center gap-4 text-sm font-bold tracking-widest hover:gap-6 transition-all group" href="/listing">
                 EXPLORE COLLECTIONS
                 <span className="material-icons-outlined text-white">east</span>
               </a>
