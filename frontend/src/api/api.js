@@ -10,10 +10,8 @@
 import axios from "axios";
 
 const API = axios.create({
-    // Ensure this port matches your running backend (3001 or 5000)
-    baseURL: "http://localhost:5000/api" 
+    baseURL: process.env.REACT_APP_API_URL || "http://localhost:5000/api"
 });
-
 // 1. Individual named exports (fixes the SyntaxError in PlantsListing)
 export const fetchPlants = async () => {
     const response = await API.get("/plants");
