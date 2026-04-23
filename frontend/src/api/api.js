@@ -14,12 +14,12 @@ const API = axios.create({
 });
 // 1. Individual named exports (fixes the SyntaxError in PlantsListing)
 export const fetchPlants = async () => {
-    const response = await API.get("/plants");
+    const response = await API.get("/");
     return response.data;
 };
 
 export const fetchPlantById = async (id) => {
-    const response = await API.get(`/plants/${id}`);
+    const response = await API.get(`/${id}`);
     return response.data;
 };
 
