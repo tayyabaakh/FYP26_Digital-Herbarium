@@ -6,8 +6,12 @@ const pool = mysql.createPool({
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'herbarium_db',
+  port: process.env.DB_PORT || 4000, // <--- Add this line
   waitForConnections: true,
-  connectionLimit: 10
+  connectionLimit: 10,
+  ssl: {
+    rejectUnauthorized: true 
+  }
 });
 
 module.exports = pool.promise(); // Using promises makes code cleaner
