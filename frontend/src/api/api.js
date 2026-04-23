@@ -1,46 +1,35 @@
-import axios from 'axios';
+// import axios from 'axios';
+
+// const API = axios.create({
+//     baseURL: 'http://localhost:5000/api' // This matches your backend port
+// });
+
+// export const fetchPlants = () => API.get('/plants');
+
+
+import axios from "axios";
 
 const API = axios.create({
-    baseURL: 'http://localhost:5000/api' // This matches your backend port
+    // Ensure this port matches your running backend (3001 or 5000)
+    baseURL: "http://localhost:5000/api" 
 });
 
-export const fetchPlants = async () =>{
+// 1. Individual named exports (fixes the SyntaxError in PlantsListing)
+export const fetchPlants = async () => {
+    const response = await API.get("/plants");
+    return response.data;
+};
 
-    try{
-        const response = API.get('/plants');
-        console.log("API response is", response);
-        
-        return response;
+export const fetchPlantById = async (id) => {
+    const response = await API.get(`/plants/${id}`);
+    return response.data;
+};
 
-    }
-    catch(err){
-        console.log("the error is this:",err);
-        
-    }   
-} 
-
-export const fetchPlantById = async (plantId) =>{
-
-    try{
-        const response = API.get(`/plants/${plantId}`);
-        console.log("API response is", response.data);
-        
-        return response;
-
-    }
-    catch(err){
-        console.log("the error is this:",err);
-        
-    }   
-} 
-
-
-
-    
-
-
-
-
+// 2. Service object export (for your PlantDetail page logic)
+export const plantdetailService = {
+    getAllPlants: fetchPlants,
+    getPlantsById: fetchPlantById
+};
 
 
 // import axios from "axios";

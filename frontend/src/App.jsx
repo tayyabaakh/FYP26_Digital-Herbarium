@@ -36,7 +36,8 @@ function App() {
     <Route path="guidelines" element={<Guidlines />} />
 
     <Route path="contact" element={<ContactPage />} />
-    <Route path="plantdetail/:id" element={<PlantDetail/>} />
+  
+<Route path="/plant-database/:id" element={<PlantDetail />} />
   </Route>
 </Routes>
     </BrowserRouter>
