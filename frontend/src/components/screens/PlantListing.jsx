@@ -357,8 +357,11 @@ export default function PlantsListing() {
   const navigate = useNavigate();
 
   const initialFilters = {
-    name: '', family: '', species: '', collector_name: '', locality: '', habitat: '',
-  };
+        collection_folder: '', collection_no: '', collector_group_members: '',
+        collector_name: '', date: '', family: '', flower_color: '',
+        habit: '', habitat: '', locality: '', location_code: '',
+        name: '', species: '', specimen_folder: '', specimen_id_gh_number: ''
+    };
   const [filters, setFilters] = useState(initialFilters);
 
   // 1. Fetch Data
@@ -399,7 +402,8 @@ export default function PlantsListing() {
 
   return (
     <div className="font-body-md text-on-background min-h-screen pb-24 bg-surface">
-      <Header onMenuToggle={() => setIsDrawerOpen(true)} />
+      {/* <Header  onMenuToggle={() => setIsDrawerOpen(true)} /> */}
+   
 
       {/* Filter Drawer Overlay */}
       {isDrawerOpen && (
@@ -407,7 +411,7 @@ export default function PlantsListing() {
       )}
 
       {/* Filter Drawer */}
-      <div className={`fixed top-0 right-0 h-full w-80 bg-surface-container z-[110] p-6 shadow-2xl transition-transform duration-300 ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`fixed bg-amber-50 top-0 right-0 h-full w-80 bg-surface-container z-[110] p-6 shadow-2xl transition-transform duration-300 ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-lg font-bold">Search Filters</h2>
           <button onClick={() => setIsDrawerOpen(false)} className="text-on-background">✕</button>
@@ -433,7 +437,13 @@ export default function PlantsListing() {
 
       {/* Main Content */}
       <main className="pt-24 px-6 max-w-[1440px] mx-auto">
-        <section className="mt-10 mb-8">
+        <section className=" mb-8">
+               <button 
+        onClick={() => setIsDrawerOpen(true)} 
+        className="flex mb-3 bg-amber-50  items-center gap-2  text-on-primary px-4 py-2 rounded-lg font-bold hover:bg-primary-container transition"
+      >
+        <span>☰</span> Filters
+      </button>
           <h1 className="text-4xl font-bold uppercase mb-2 text-amber-50">Botanical Records</h1>
           <p className="text-on-tertiary-container text-amber-50">Showing {filteredPlants.length} specimens.</p>
         </section>

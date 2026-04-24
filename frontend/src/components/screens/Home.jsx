@@ -84,13 +84,13 @@ const ForestSchool = () => {
         }
       `}} />
 
-      <main className="relative h-screen w-full hero-bg overflow-hidden">
+      <main className=" relative h-screen w-full hero-bg overflow-hidden">
         {/* Background Layers */}
         <div className="absolute inset-0 z-0 hero-bg scale-105 blur-[2px] brightness-[0.8]"></div>
         <div className="absolute inset-y-0 left-0 w-[42%] blurred-side z-10 border-r border-white/10"></div>
 
         {/* Content Container */}
-        <div className="relative z-20 h-full flex flex-col px-12 py-10">
+        <div className="relative z-20 mt-7 h-full flex flex-col px-12 py-10">
           
           {/* Search Section */}
           <div className="flex-1 flex flex-col justify-center relative">
