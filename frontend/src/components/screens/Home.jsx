@@ -61,7 +61,7 @@ const ForestSchool = () => {
       <style dangerouslySetInnerHTML={{
         __html: `
         .hero-bg {
-          background-image: url(https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80);
+          background-image: url(https://karuniherb.pk/wp-content/uploads/2025/11/kuh.webp);
           background-size: cover;
           background-position: center;
         }
