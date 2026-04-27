@@ -139,7 +139,7 @@ const ForestSchool = () => {
             {/* Title Section */}
             <div className="max-w-7xl mx-auto w-full">
               <h1 className="text-[7rem] font-black leading-[0.9] tracking-tighter justify-center flex items-center select-none">
-                <span className="text-reveal">DIGITAL </span>
+                <span className="text-reveal">Welcome to Karachi University  </span>
                 <span className="text-white drop-shadow-2xl ml-4"> HERBARIUM</span>
               </h1>
             </div>
