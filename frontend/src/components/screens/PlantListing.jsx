@@ -398,7 +398,7 @@ export default function PlantsListing() {
 
   const resetFilters = () => setFilters({ ...initialFilters });
 
-  if (loading) return <div className="flex justify-center items-center h-screen text-on-background">Loading Digital Herbarium...</div>;
+  if (loading) return <div className="flex text-white justify-center items-center h-screen text-on-background">Loading Digital Herbarium...</div>;
 
   return (
     <div className="font-body-md text-on-background min-h-screen pb-24 bg-surface">
@@ -463,7 +463,7 @@ export default function PlantsListing() {
             ))}
           </div>
         ) : (
-          <p className="text-center mt-20 text-on-surface-variant">No plants match your filters.</p>
+          <p className="text-center text-white mt-20 text-on-surface-variant">No plants match your filters.</p>
         )}
       </main>
     </div>

@@ -59,10 +59,10 @@ const AboutPage = () => {
                 <span className="text-white/50 font-black tracking-[0.4em] text-xs uppercase">Welcome to the Portal</span>
                 <h1 className="text-5xl md:text-7xl font-black leading-tight tracking-tighter">
                   DATA PORTAL <br />
-                  <span className="text-reveal">OF DIGITAL HERBARIUM</span>
+                  <span className="text-reveal backdrop-filter">OF KUH</span>
                 </h1>
                 <p className="text-white/60 text-lg leading-relaxed max-w-xl">
-                  Comprehensive botanical database and herbarium collection management system for the University of Karachi. A digital gateway to regional biodiversity, blending history with technology.
+                The Karachi University Herbarium (KUH) at the Centre for Plant Conservation serves as a valuable repository of plant specimens, playing a vital role in research, education, and conservation. In line with modern practices and to ensure the long-term preservation and accessibility of these specimens, it has become essential to digitize our herbarium collections.
                 </p>
               </div>
               <div className="flex gap-4">
@@ -84,15 +84,33 @@ const AboutPage = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {[
-                { title: 'Aims', icon: 'target', desc: 'To digitize and preserve the vast botanical collection for global accessibility and research, ensuring historical specimens survive for the modern era.' },
-                { title: 'Scope', icon: 'visibility', desc: 'Providing a platform for researchers and botanists to study regional flora with high-resolution imaging and detailed taxonomic data.' }
+                { title: 'Aims', icon: 'target',items: [
+      'Preserve Botanical Heritage', 
+      'Enhance Global Accessibility', 
+      'Standardize Data And Documentation',
+      'Promote Education and Capacity Building',
+      'Support Conservation and Policy Efforts'
+
+    ] },
+                { title: 'Scope', icon: 'visibility', items: [
+      'Database Development', 
+      'National And International Linkage', 
+      'Training And Capacity Development',
+      'Strengthening Virtual Research Capabilities'
+    ] }
               ].map((item) => (
                 <div key={item.title} className="glass-card p-10 rounded-3xl border border-white/10 hover:border-white/30 transition-all group">
                   <div className="text-white bg-white/10 w-16 h-16 flex items-center justify-center rounded-2xl mb-6 group-hover:scale-110 transition-transform">
                     <span className="material-symbols-outlined text-3xl">{item.icon}</span>
                   </div>
                   <h3 className="text-2xl font-bold mb-4 uppercase tracking-wider">{item.title}</h3>
-                  <p className="text-white/50 leading-relaxed">{item.desc}</p>
+                  <ul className="list-[square] text-white/50 leading-relaxed">
+                    {item.items.map((item, index) => (
+                      <li key={index} className="mb-2">
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               ))}
             </div>

@@ -90,7 +90,7 @@ const ForestSchool = () => {
         <div className="absolute inset-y-0 left-0 w-[42%] blurred-side z-10 border-r border-white/10"></div>
 
         {/* Content Container */}
-        <div className="relative z-20 mt-7 h-full flex flex-col px-12 py-10">
+        <div className="relative z-20 mt-10 h-full flex flex-col px-12 py-10">
           
           {/* Search Section */}
           <div className="flex-1 flex flex-col justify-center relative">
@@ -137,10 +137,23 @@ const ForestSchool = () => {
             </div>
 
             {/* Title Section */}
-            <div className="max-w-7xl mx-auto w-full">
+            <div className="max-w-6xl mx-auto w-full">
               <h1 className="text-[7rem] font-black leading-[0.9] tracking-tighter justify-center flex items-center select-none">
-                <span className="text-reveal">Welcome to Karachi University  </span>
-                <span className="text-white drop-shadow-2xl ml-4"> HERBARIUM</span>
+             <div className="relative flex flex-col justify-center items-center h-60 w-full bg-cover bg-center" >
+  
+  {/* This is the Dark Overlay: it makes white text readable */}
+  <div className="absolute inset-0 bg-black/20 rounded-2xl"></div>
+
+  {/* Text Content: z-10 ensures text sits on top of the overlay */}
+  <div className="relative z-10 text-center ">
+    <h1 className="text-white text-4xl md:text-6xl font-bold uppercase tracking-tight">
+      Welcome to Karachi University
+    </h1>
+    <h2 className="text-white text-5xl md:text-6xl font-black uppercase drop-shadow-2xl mt-2">
+      Herbarium
+    </h2>
+  </div>
+</div>
               </h1>
             </div>
 
@@ -154,11 +167,9 @@ const ForestSchool = () => {
           </div>
 
           {/* Bottom Content */}
-          <div className="flex mb-8">
+          <div className="flex mt-5 mb-5">
             <div className="w-[42%]">
-              <p className="text-white/70 max-w-sm text-md leading-relaxed mb-5">
-                Explore the vast collection of botanical specimens in our Digital Herbarium. A journey through nature, preserved for science.
-              </p>
+            
               <a className="inline-flex items-center gap-4 text-sm font-bold tracking-widest hover:gap-6 transition-all group" href="/listing">
                 EXPLORE COLLECTIONS
                 <span className="material-icons-outlined text-white">east</span>
