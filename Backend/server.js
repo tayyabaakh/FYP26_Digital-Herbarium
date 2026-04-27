@@ -9,8 +9,8 @@ const app = express();
 // server.js
 app.use(cors({
   origin: [
-    // 'https://fyp-26-digital-herbarium-doo8.vercel.app', // Add your current URL here
-    'http://localhost:5173'
+    'https://fyp-26-digital-herbarium-doo8.vercel.app', // Add your current URL here
+    // 'http://localhost:5173'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
