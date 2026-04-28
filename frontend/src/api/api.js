@@ -3,8 +3,8 @@
 import axios from "axios";
 
 const API = axios.create({
-    // baseURL: import.meta.env.VITE_API_URL || "https://fyp26-digital-herbarium.onrender.com/api/plants"||"http://localhost:5000/api"
-     baseURL: "http://localhost:5000/api/plants" 
+    baseURL: import.meta.env.VITE_API_URL || "https://fyp26-digital-herbarium.onrender.com/api/plants"||"http://localhost:5000/api"
+    //  baseURL: "http://localhost:5000/api/plants" 
 });
 // 1. Individual named exports (fixes the SyntaxError in PlantsListing)
 export const fetchPlants = async () => {
