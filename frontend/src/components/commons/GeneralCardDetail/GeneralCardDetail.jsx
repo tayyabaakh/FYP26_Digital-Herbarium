@@ -10,7 +10,7 @@ const GeneralCardDetail = ({ title, icon, fields }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
         {fields.map((field, index) => (
           <div key={index} className={field.fullWidth ? "col-span-full" : ""}>
-            <p className="text-[10px] font-bold uppercase tracking-wider  mb-1 text-black">
+            <p className="text-[12px] font-bold uppercase tracking-wider  mb-1 text-stone-800">
               {field.label}
             </p>
             <div className="text-base font-medium text-slate-100 dark:text-white">
