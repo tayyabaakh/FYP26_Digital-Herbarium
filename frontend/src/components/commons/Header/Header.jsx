@@ -6,16 +6,16 @@ const Header = () => {
 
   const navItems = [
     { name: 'Home', path: '/home' },
-    { name: 'About Us', path: '/about' },
-    { name: 'Plants Listing', path: '/listing' },
-
-    
-    // { name: 'Plant database', path: '/plant-database' },
-
+    { name: 'Plants database', path: '/listing' },
     { name: 'Faculty and Staff', path: '/faculty-and-staff' },
     // { name: 'Plant Contributor ', path: '/plant-contributor' },
     // { name: 'Guidelines', path: '/guidelines' },
+
+    { name: 'About Us', path: '/about' },
     { name: 'Contact', path: '/contact' },
+
+    
+
   ];
 
   return (

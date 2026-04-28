@@ -1,12 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchPlants } from '../../api/api';
-
+import herbariumImage from '../../assets/herbarium.png';
 const ForestSchool = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [plants, setPlants] = useState([]);
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   const navigate = useNavigate();
+
+  const services = [
+  {
+    title: "Vascular Specimen Mounting Guidelines",
+    desc: "Plant Collection. Fresh Plant Collection from Field. Cleaning and Preservation of Plants. Plant Treatment. Plants collected from field are pressed under presser in blotting paper. Pressed plants are kept in drier. Dried plants are poisoned and dried. Cold and Hot Treatment is done. Plant Mounting & Voucher Specimen Number. Dried Plant is mounted on sheet and Label is filled. Voucher specimen number is issued.",
+    icon: "eco"
+  },
+  {
+    title: "Herbarium Services",
+    desc: "Herbarium Sheet Preparation and GH No. issue. Identification of Plant Sample (Complete Plant Twig with flowers and Fruit). Identification of specific plant sample. Collection of Plant samples (on demand).",
+    icon: "error"
+  },
+  {
+    title: "Medicinal Plants",
+    desc: "Medicinal plants are plants that have healing properties and are used to treat or prevent diseases. Their leaves, roots, bark, or flowers contain natural compounds.",
+    icon: "local_hospital" // Using local_hospital as a substitute for medicinal icon
+  }
+];
 
   // 1. Load data from API on component mount
   useEffect(() => {
@@ -55,7 +73,8 @@ const ForestSchool = () => {
   };
 
   return (
-    <div className="bg-background-light dark:bg-background-dark font-display text-white overflow-hidden min-h-screen">
+    <>
+    <div className="bg-background-light dark:bg-background-dark font-display  text-white overflow-hidden min-h-screen">
       <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
 
       <style dangerouslySetInnerHTML={{
@@ -84,7 +103,7 @@ const ForestSchool = () => {
         }
       `}} />
 
-      <main className=" relative h-screen w-full hero-bg overflow-hidden">
+      <main className=" relative h-full py-10 w-full overflow-hidden ">
         {/* Background Layers */}
         <div className="absolute inset-0 z-0 hero-bg scale-105 blur-[2px] brightness-[0.8]"></div>
         <div className="absolute inset-y-0 left-0 w-[42%] blurred-side z-10 border-r border-white/10"></div>
@@ -201,7 +220,79 @@ const ForestSchool = () => {
           </div>
         </div>
       </main>
+       <section className="bg-gray-50 py-20 px-6">
+  <div className="max-w-6xl mx-auto">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {services.map((service, index) => (
+        <div key={index} className="bg-white p-8 rounded-3xl shadow-lg border border-gray-100 flex flex-col items-center text-center hover:shadow-2xl transition-all duration-300">
+          
+          {/* Icon Circle */}
+          <div className="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mb-6">
+  <span className="material-icons-outlined text-green-600 text-4xl leading-none">
+    {service.icon}
+  </span>
+</div>
+
+          {/* Title */}
+          <h3 className="text-xl font-bold text-gray-900 mb-4">{service.title}</h3>
+          
+          {/* Description */}
+          <p className="text-gray-800 leading-relaxed text-md">
+            {service.desc}
+          </p>
+        </div>
+      ))}
     </div>
+  </div>
+</section>
+<section className="bg-gray-50 py-20 px-6 md:px-12 lg:px-24">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        
+        {/* Left Side: Image Container */}
+        <div className=" overflow-hidden shadow-2xl h-full">
+        <img 
+      src={herbariumImage} // Use the variable here
+      alt="Karachi University Herbarium Metal Cabinets" 
+      className="w-full h-full object-cover object-center aspect-square md:aspect-auto"
+    />
+        </div>
+
+        {/* Right Side: Text Content */}
+        <div className="flex flex-col gap-6 md:pl-10">
+          
+          {/* Main Heading */}
+          <h2 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight tracking-tight uppercase">
+            Karachi University Herbarium (KUH)
+          </h2>
+
+          {/* Separator Line (Optional, looks clean) */}
+          <div className="w-24 h-1 bg-green-600 rounded-full"></div>
+
+          {/* Main Description */}
+          <div className="flex flex-col gap-5 text-gray-700 leading-relaxed text-base font-normal">
+            <p>
+              The Karachi University Herbarium is a state-of-the-art facility dedicated to the 
+              collection, preservation, and scientific study of botanical specimens. We house an 
+              extensive collection of meticulously dried and classified plants, serving as a vital 
+              resource for researchers, students, and conservation efforts across Pakistan.
+            </p>
+            
+            <p>
+             The Herbarium is a place where a collection of dried plant specimens are kept for scientific studies. These specimens are arranged according to a particular system of classification. Nowadays a modern herbarium is a sort of research laboratory, training and reference Centre and a permanent data store house of all the plants of an area. Herbarium is a fundamental source of identification of plants and a permanent reference Centre. It serves basic need of identification for basic and applied research in botany, biology, agriculture, pharmacy, genetics pharmaceutical chemistry, aerobiology and biotechnology. Karachi University Herbarium has more than 150,000 plant species (mostly flowering plants), including those which are several decades old. A collection of taxonomic literature mainly dealing with flowering plants is also present in the herbarium. The types of new taxa (new species, sub-species, varieties) are properly preserved and kept here for future use. It also acts as a data store house and provides a major source of information on habitat, ecology, distribution of rare and endangered species. Herbarium also acts as a source of library and laboratory for the systematic research. The herbarium Staff provides significant service to the public by identifying unknown plants and by answering a number of questions about the plants, their distribution patterns, ecology and usefulness. A rich collection of specimens provides a sound foundation for training in plant biodiversity also in order to draw relationship of wild and cultivated plants, their affinities and correct identification (which is the key for the utilization of a particular species, unknown species hardly get any attention), the name of a plant is the key to its literature. One has to take information from other branches of science such as pollen morphology, chemistry, ecology, genetics etc. The data is therefore collected from these branches of science which not only helps in identification but also the better understanding of biodiversity and different environmental problems.
+            </p>
+          </div>
+          
+          {/* Call to Action Button */}
+          <a href="/about" className="mt-6 self-start px-8 py-3 bg-green-600 text-white font-bold rounded-xl shadow-md hover:bg-green-700 hover:shadow-lg transition-all duration-300">
+            Learn More About Us
+          </a>
+          
+        </div>
+      </div>
+    </section>
+    </div>
+   
+</>
   );
 };
 

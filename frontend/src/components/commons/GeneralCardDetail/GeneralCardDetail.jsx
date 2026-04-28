@@ -13,7 +13,7 @@ const GeneralCardDetail = ({ title, icon, fields }) => {
             <p className="text-[10px] font-bold uppercase tracking-wider  mb-1 text-amber-50">
               {field.label}
             </p>
-            <div className="text-base font-medium text-slate-900 dark:text-black">
+            <div className="text-base font-medium text-slate-100 dark:text-white">
               {field.render ? field.render() : field.value}
             </div>
           </div>

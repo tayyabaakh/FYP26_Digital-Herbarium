@@ -2,7 +2,7 @@
 @tailwind utilities;
 
 body {
-  background-color: #121414;
+  background-color: #2ed9d9;
   background-image: radial-gradient(circle at 50% 0%, #1a2e23 0%, #121414 100%);
   min-height: 100dvh;
 }
