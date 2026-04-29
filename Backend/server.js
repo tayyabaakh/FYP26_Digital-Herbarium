@@ -9,8 +9,8 @@ const app = express();
 // server.js
 app.use(cors({
   origin: [
-    'https://fyp-26-digital-herbarium-doo8.vercel.app', // Add your current URL here
-    // 'http://localhost:5173'
+    // 'https://fyp-26-digital-herbarium-doo8.vercel.app'|| // Add your current URL here
+    'http://localhost:5173'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
@@ -22,5 +22,5 @@ app.use(express.json());
 // Routes
 app.use('/api/plants', plantRoutes);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
