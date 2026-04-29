@@ -58,8 +58,8 @@ const PlantDetail = () => {
     <div className="flex items-center gap-4">
       <div className="h-10 w-1 bg-emerald-600 rounded-full shadow-[0_0_10px_rgba(5,150,105,0.5)]" />
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white uppercase italic">
-          {plant.name} <span className="text-gray-500 font-light not-italic ml-2">{plant.species}</span>
+        <h1 className="text-2xl font-bold tracking-tight text-white  italic">
+          {plant.name} <span className="text-gray-500 font-light not-italic ml-2 capitalize">{plant.species}</span>
         </h1>
         <p className="text-[10px] font-mono text-emerald-500/80 uppercase tracking-widest mt-1">
           Archive Ref: {plant.specimen_id_gh_number}

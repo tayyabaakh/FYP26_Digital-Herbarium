@@ -168,7 +168,7 @@ const ForestSchool = () => {
     <h1 className="text-white text-4xl md:text-6xl font-bold uppercase tracking-tight">
       Welcome to Karachi University
     </h1>
-    <h2 className="text-white text-5xl md:text-6xl font-black uppercase drop-shadow-2xl mt-2">
+    <h2 className="text-white text-4xl md:text-6xl font-bold  uppercase drop-shadow-2xl mt-2">
       Herbarium
     </h2>
   </div>
