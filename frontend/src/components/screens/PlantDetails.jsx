@@ -82,7 +82,7 @@ const PlantDetail = () => {
           
           {/* Left: Specimen Visualization */}
           <div className="lg:col-span-5 space-y-8">
-            <ImageDisplayCard imageUrl={plant.specimen_image_url} />
+            <ImageDisplayCard imageUrl={plant.image_url} />
             <LocationDisplayCard 
               lat="52.5200" 
               lng="13.4050" 
