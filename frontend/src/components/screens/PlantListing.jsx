@@ -348,6 +348,7 @@ import { useNavigate } from 'react-router-dom';
 import { fetchPlants } from '../../api/api'; // Ensure this path is correct
 import Header from '../commons/Header/Header';
 import SpecimenCard from '../commons/PlantListing/specimancard';
+import LoadingScreen from '../commons/Loader/Loader';
 
 export default function PlantsListing() {
   const [plants, setPlants] = useState([]);
@@ -398,10 +399,10 @@ export default function PlantsListing() {
 
   const resetFilters = () => setFilters({ ...initialFilters });
 
-  if (loading) return <div className="flex text-white justify-center items-center h-screen text-on-background">Loading Digital Herbarium...</div>;
+  if (loading) return <LoadingScreen/>;
 
   return (
-    <div className="font-body-md text-on-background min-h-screen pb-24 bg-surface">
+    <div className="font-body-md text-on-background min-h-screen pb-24 bg-gradient-to-br from-neutral-950 via-emerald-950 to-neutral-950">
       {/* <Header  onMenuToggle={() => setIsDrawerOpen(true)} /> */}
    
 
@@ -437,17 +438,21 @@ export default function PlantsListing() {
 
       {/* Main Content */}
       <main className="pt-24 px-6 max-w-[1440px] mx-auto">
-        <section className=" mb-8">
-               <button 
-        onClick={() => setIsDrawerOpen(true)} 
-        className="flex mb-3 bg-amber-50  items-center gap-2  text-on-primary px-4 py-2 rounded-lg font-bold hover:bg-primary-container transition"
-      >
-        <span>☰</span> Filters
-      </button>
-          <h1 className="text-4xl font-bold uppercase mb-2 text-amber-50">Botanical Records</h1>
-          <p className="text-on-tertiary-container text-amber-50">Showing {filteredPlants.length} specimens.</p>
-        </section>
+    <section className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+  {/* Left Side: Text Details */}
+  <div>
+    <h1 className="text-4xl font-bold uppercase mb-2 text-amber-50">Botanical Records</h1>
+    <p className="text-on-tertiary-container text-amber-50">Showing {filteredPlants.length} specimens.</p>
+  </div>
 
+  {/* Right Side: Filter Button */}
+  <button 
+    onClick={() => setIsDrawerOpen(true)} 
+    className="flex mr-15 bg-amber-50 items-center gap-2 text-on-primary px-4 py-2 rounded-lg font-bold hover:bg-primary-container transition shrink-0 w-full sm:w-auto justify-center sm:justify-start"
+  >
+    <span>☰</span> Filters
+  </button>
+</section>
         {filteredPlants.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredPlants.map((plant) => (

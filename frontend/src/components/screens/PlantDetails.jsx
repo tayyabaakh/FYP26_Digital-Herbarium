@@ -4,6 +4,7 @@ import { fetchPlantById } from '../../api/api';
 import ImageDisplayCard from '../commons/ImageDetailCard/ImageDetailCard';
 import LocationDisplayCard from '../commons/LocationDisplayCard/LocationDisplayCard';
 import GeneralCardDetail from '../commons/GeneralCardDetail/GeneralCardDetail';
+import LoadingScreen from '../commons/Loader/Loader';
 
 const PlantDetail = () => {
   const { id } = useParams();
@@ -27,9 +28,7 @@ const PlantDetail = () => {
   }, [id]);
 
   if (loading) return (
-    <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center">
-      <div className="animate-pulse text-emerald-500 font-mono tracking-widest">INITIALIZING SPECIMEN_DATA...</div>
-    </div>
+  <LoadingScreen/>
   );
 
   if (!plant) return <div className="min-h-screen bg-[#0B0F1A] text-white p-20">Record not found.</div>;
@@ -49,8 +48,8 @@ const PlantDetail = () => {
   ];
 
   return (
-    <main className="min-h-screen bg-surface text-slate-200 font-sans selection:bg-emerald-500/30">
-      {/* Header Bar */}
+    <main className="min-h-screen bg-surface text-slate-200 font-sans bg-gradient-to-br from-neutral-950 via-emerald-950 to-neutral-950">
+    
     {/* Remove 'mt-40', fix 'md:row', and ensure proper sticky positioning */}
 <header className="border-b border-white/10 bg-surface backdrop-blur-md sticky top-[64px] z-40 px-6 py-6 shadow-sm">
   <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
@@ -67,12 +66,6 @@ const PlantDetail = () => {
       </div>
     </div>
 
-    {/* Optional: You can add back your buttons here in a 'flex gap-3' div */}
-    <div className="flex gap-3">
-        <button className="text-[10px] uppercase font-bold text-gray-400 hover:text-white transition-colors">
-            Share Record
-        </button>
-    </div>
 
   </div>
 </header>
