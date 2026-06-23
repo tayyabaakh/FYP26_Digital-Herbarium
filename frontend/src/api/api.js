@@ -2,26 +2,36 @@
 
 import axios from "axios";
 
-const API = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || "https://fyp26-digital-herbarium.onrender.com/api/plants"
-    //  baseURL: "http://localhost:4000/api/plants" 
+const axiosInstance = axios.create({
+    // baseURL: import.meta.env.VITE_API_URL || "https://fyp26-digital-herbarium.onrender.com/axiosInstance/plants"
+     baseURL: "http://localhost:4000/api" ,
+     headers: { 'Content-Type': 'application/json' },
 });
-// 1. Individual named exports (fixes the SyntaxError in PlantsListing)
-export const fetchPlants = async () => {
-    const response = await API.get("/");
-    console.log("API Response:", response); // Debugging log
-    return response.data;
-};
 
-export const fetchPlantById = async (id) => {
-    const response = await API.get(`/${id}`);
-    return response.data;
-};
 
-// 2. Service object export (for your PlantDetail page logic)
-export const plantdetailService = {
-    getAllPlants: fetchPlants,
-    getPlantsById: fetchPlantById
-};
+axiosInstance.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
 
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+},
+(error)=>Promise.reject(error));
+
+// ── Response Interceptor: handle 401 globally ─────────────────
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default axiosInstance;
 

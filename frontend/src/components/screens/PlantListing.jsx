@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchPlants } from '../../api/api'; // Ensure this path is correct
+import { fetchPlants } from '../../api/plantApi'; // Ensure this path is correct
 import Header from '../commons/Header/Header';
 import SpecimenCard from '../commons/PlantListing/specimancard';
 import LoadingScreen from '../commons/Loader/Loader';

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetchPlantById } from '../../api/api';
+import { fetchPlantById } from '../../api/plantApi';
 import ImageDisplayCard from '../commons/ImageDetailCard/ImageDetailCard';
 import LocationDisplayCard from '../commons/LocationDisplayCard/LocationDisplayCard';
 import GeneralCardDetail from '../commons/GeneralCardDetail/GeneralCardDetail';

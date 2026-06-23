@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchPlants } from '../../api/api';
+import { fetchPlants } from '../../api/plantApi';
 import herbariumImage from '../../assets/herbarium.png';
 
 const ForestSchool = () => {

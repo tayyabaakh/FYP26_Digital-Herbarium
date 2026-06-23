@@ -54,7 +54,7 @@ const Header = () => {
 
         {/* 3. Right Action Area (Desktop Portal) */}
         <div className="hidden lg:flex items-center gap-4 pl-4 border-l border-white/20 text-sm font-black tracking-widest">
-          <Link to="/portal" className="text-white hover:text-green-400 transition-colors">PORTAL</Link>
+          <Link to="/login" className="text-white hover:text-green-400 transition-colors">PORTAL</Link>
         </div>
 
         {/* 4. Hamburger Trigger Button */}
@@ -112,7 +112,7 @@ const Header = () => {
         {/* Drawer Footer Action (Portal Link) */}
         <div className="flex flex-col gap-4 mt-auto border-t border-black/5 pt-6">
           <Link
-            to="/portal"
+            to="/login"
             onClick={() => setIsMenuOpen(false)}
             className="w-full py-3.5 px-4 bg-green-600 hover:bg-green-700 text-white rounded-xl text-center font-black tracking-widest text-sm shadow-lg shadow-green-700/20 transition-all active:scale-[0.98]"
           >

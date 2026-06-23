@@ -19,7 +19,7 @@ const LoadingScreen = () => {
       {/* Typography Brand Subtext Block */}
       <div className="text-center space-y-2 animate-pulse [animation-duration:2s]">
         <h2 className="text-white font-black tracking-[0.25em] text-sm sm:text-base uppercase">
-          Flora-Digitalis
+          KUH
         </h2>
         <p className="text-emerald-400/70 font-medium tracking-widest text-[10px] uppercase">
           Loading Herbarium Database...
