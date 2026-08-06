@@ -30,9 +30,8 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 
 dotenv.config();
-
+const path = require('path');
 const app = express();
-
 // Middleware
 app.use(cors({
   origin: [
@@ -45,6 +44,11 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// In your backend server file:
+app.use('/uploads', (req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*"); // Allow React app frontend to read image details
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
 
 // Health check
 app.get('/', (req, res) => {

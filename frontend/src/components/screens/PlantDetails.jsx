@@ -5,6 +5,7 @@ import ImageDisplayCard from '../commons/ImageDetailCard/ImageDetailCard';
 import LocationDisplayCard from '../commons/LocationDisplayCard/LocationDisplayCard';
 import GeneralCardDetail from '../commons/GeneralCardDetail/GeneralCardDetail';
 import LoadingScreen from '../commons/Loader/Loader';
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 
 const PlantDetail = () => {
   const { id } = useParams();
@@ -46,6 +47,7 @@ const PlantDetail = () => {
     { label: "Collection Number", value: `#${plant.collection_no}` },
     { label: "Storage Location", value: plant.specimen_folder },
   ];
+  
 
   return (
     <main className="min-h-screen bg-surface text-slate-200 font-sans bg-gradient-to-br from-neutral-950 via-emerald-950 to-neutral-950">
@@ -75,7 +77,8 @@ const PlantDetail = () => {
           
           {/* Left: Specimen Visualization */}
           <div className="lg:col-span-5 space-y-8">
-            <ImageDisplayCard imageUrl={plant.image_url} />
+            <ImageDisplayCard plant={plant} />
+            
             <LocationDisplayCard 
               lat="52.5200" 
               lng="13.4050" 
