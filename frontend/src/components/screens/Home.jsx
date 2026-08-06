@@ -267,7 +267,7 @@
 
 // export default ForestSchool;
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchPlants } from '../../api/plantApi';
 import herbariumImage from '../../assets/herbarium.png';

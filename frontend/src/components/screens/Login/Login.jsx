@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { loginThunk, logout } from '../../store/slices/authSlice';
+import { loginThunk, logout } from '../../../store/slices/authSlice';
 
 const LoginPage = () => {
   const dispatch = useDispatch();

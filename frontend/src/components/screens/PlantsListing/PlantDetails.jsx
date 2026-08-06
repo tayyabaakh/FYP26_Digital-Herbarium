@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetchPlantById } from '../../api/plantApi';
-import ImageDisplayCard from '../commons/ImageDetailCard/ImageDetailCard';
-import LocationDisplayCard from '../commons/LocationDisplayCard/LocationDisplayCard';
-import GeneralCardDetail from '../commons/GeneralCardDetail/GeneralCardDetail';
-import LoadingScreen from '../commons/Loader/Loader';
+import { fetchPlantById } from '../../../api/plantApi';
+import ImageDisplayCard from '../../commons/ImageDetailCard/ImageDetailCard';
+import LocationDisplayCard from '../../commons/LocationDisplayCard/LocationDisplayCard';
+import GeneralCardDetail from '../../commons/GeneralCardDetail/GeneralCardDetail';
+import LoadingScreen from '../../commons/Loader/Loader';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 
 const PlantDetail = () => {
