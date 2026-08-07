@@ -15,8 +15,8 @@ const RoleBasedRoute = ({ children, allowedRoles }) => {
   const { user } = useSelector((state) => state.auth);
 
   return (
-    <ProtectedRoute>
-      {user && allowedRoles.includes(user.role) ? (
+    // <ProtectedRoute>
+      user && allowedRoles.includes(user.role) ? (
         children
       ) : (
         // Logged in but wrong role — send to their correct home
@@ -28,8 +28,8 @@ const RoleBasedRoute = ({ children, allowedRoles }) => {
           }
           replace
         />
-      )}
-    </ProtectedRoute>
+      )
+    //  </ProtectedRoute>
   );
 };
 

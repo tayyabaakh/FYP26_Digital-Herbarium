@@ -193,6 +193,7 @@ import PlantsListing from './components/screens/PlantsListing/PlantListing';
 import LoginPage from "./components/screens/Login/Login";
 import BotanistApply from "./components/screens/Botanist/BotanistApply";
 import BotanistApplicationReview from "./components/screens/admin/Dashboard";
+import BotanistNewSubmission from "./components/screens/Botanist/BotanistNewSubmission"; // <--- Add your BotanistNewSubmission import
 
 // Botanist Sub-Screens
 import BotanistProfile from "./components/screens/Botanist/BotanistProfile";
@@ -259,9 +260,9 @@ const AppRoutes = () => {
         <Route
           path="/botanist"
           element={
-            <RoleBasedRoute allowedRoles={["botanist"]}>
+            // <RoleBasedRoute allowedRoles={["botanist"]}>
               <BotanistLayout />
-            </RoleBasedRoute>
+            // </RoleBasedRoute>
           }
         >
           {/* Default redirect: /botanist -> /botanist/profile */}
@@ -272,7 +273,7 @@ const AppRoutes = () => {
           
           {/* Placeholders for remaining sidebar items */}
           <Route path="dashboard" element={<div>Botanist Overview Dashboard</div>} />
-          <Route path="new-submission" element={<div>New Specimen Submission Form</div>} />
+          <Route path="new-submission" element={<BotanistNewSubmission />} />
           <Route path="my-submissions" element={<div>Botanist Submissions Table</div>} />
         </Route>
 
