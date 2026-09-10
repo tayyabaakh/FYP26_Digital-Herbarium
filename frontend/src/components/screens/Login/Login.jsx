@@ -14,34 +14,90 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [localError,   setLocalError]   = useState('');
 
+  // const handleSubmit = async (e) => {
+    
+  //   e.preventDefault();
+  //   setLocalError('');
+
+  //   const result = await dispatch(loginThunk({ email, password }));
+
+  //   if (loginThunk.fulfilled.match(result)) {
+  //     const role = result.payload.user.role;
+
+  //     if (activeTab === 'admin' && role !== 'admin') {
+  //       setLocalError('Access denied. Please use the Botanist tab to sign in.');
+  //       dispatch(logout());
+  //       return;
+  //     }
+  //     if (activeTab === 'botanist' && role === 'admin') {
+  //       setLocalError('Access denied. Please use the Administrator tab to sign in.');
+  //       dispatch(logout());
+  //       return;
+  //     }
+
+  //     if (role === 'admin')         navigate('/admin/dashboard');
+  //     else if (role === 'botanist') navigate('/botanist/dashboard');
+  //     else                          navigate('/');
+
+  //   } else {
+  //     setLocalError(result.payload || 'Invalid email or password');
+  //   }
+  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLocalError('');
 
-    const result = await dispatch(loginThunk({ email, password }));
+    console.log("1. LOGIN STARTED");
+
+    const result = await dispatch(
+        loginThunk({ email, password })
+    );
+
+    console.log("2. LOGIN RESULT:", result);
+    console.log("3. LOCAL STORAGE TOKEN:", localStorage.getItem('token'));
+    console.log("4. LOCAL STORAGE USER:", localStorage.getItem('user'));
 
     if (loginThunk.fulfilled.match(result)) {
-      const role = result.payload.user.role;
 
-      if (activeTab === 'admin' && role !== 'admin') {
-        setLocalError('Access denied. Please use the Botanist tab to sign in.');
-        dispatch(logout());
-        return;
-      }
-      if (activeTab === 'botanist' && role === 'admin') {
-        setLocalError('Access denied. Please use the Administrator tab to sign in.');
-        dispatch(logout());
-        return;
-      }
+        const role = result.payload.user.role;
 
-      if (role === 'admin')         navigate('/admin/dashboard');
-      else if (role === 'botanist') navigate('/botanist/dashboard');
-      else                          navigate('/');
+        console.log("5. LOGIN SUCCESS");
+        console.log("6. USER ROLE:", role);
+
+        if (activeTab === 'admin' && role !== 'admin') {
+            setLocalError(
+                'Access denied. Please use the Botanist tab to sign in.'
+            );
+            dispatch(logout());
+            return;
+        }
+
+        if (activeTab === 'botanist' && role !== 'botanist') {
+            setLocalError(
+                'Access denied. Please use an approved botanist account.'
+            );
+            dispatch(logout());
+            return;
+        }
+
+        console.log("7. NAVIGATING");
+
+        if (role === 'admin') {
+            navigate('/admin/dashboard');
+        } else if (role === 'botanist') {
+            navigate('/botanist/dashboard');
+        } else {
+            navigate('/');
+        }
 
     } else {
-      setLocalError(result.payload || 'Invalid email or password');
+        console.log("LOGIN FAILED:", result);
+
+        setLocalError(
+            result.payload || 'Invalid email or password'
+        );
     }
-  };
+};
 
   const switchTab = (tab) => {
     setActiveTab(tab);
@@ -68,7 +124,7 @@ const LoginPage = () => {
   to="/" 
   className="inline-flex items-center text-md font-bold text-gray-100 hover:text-emerald-700 transition-colors mb-4"
 >
-  <span className="mr-2 mt-2"><span class="material-symbols-outlined">
+  <span className="mr-2 mt-2"><span className="material-symbols-outlined">
 keyboard_backspace
 </span></span> Go back to KUH Digital Herbarium
 </Link>

@@ -20,3 +20,13 @@ export const applyAsBotanistApi = async (formData) => {
   const response = await axiosInstance.post('/auth/apply', formData);
   return response.data;
 };
+
+export const submissionApi = async (submissionData) => {
+  const response = await axiosInstance.post('/submissions', submissionData);
+  return response.data;
+}
+
+export const draftSubmissionApi = async (submissionData) => {
+  const response = await axiosInstance.post('/submissions/draft', submissionData);
+  return response.data;
+}

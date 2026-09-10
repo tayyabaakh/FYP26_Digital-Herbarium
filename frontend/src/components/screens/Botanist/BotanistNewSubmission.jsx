@@ -436,24 +436,723 @@
 // export default BotanistNewSubmission;
 
 
+// import { useState } from "react";
+
+// const BotanistNewSubmission = () => {
+//   const [submissionMode, setSubmissionMode] = useState("manual");
+//   const [selectedImage, setSelectedImage] = useState(null);
+
+//   const [formData, setFormData] = useState({
+//     scientificName: "",
+//     commonName: "",
+//     family: "",
+//     province: "",
+//     habitat: "",
+//     collectorName: "",
+//     collectionDate: "",
+//     latitude: "",
+//     longitude: "",
+//     description: "",
+//   });
+
+//   // ==========================================
+//   // FORM CHANGE
+//   // ==========================================
+
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+
+//     setFormData((prev) => ({
+//       ...prev,
+//       [name]: value,
+//     }));
+//   };
+
+//   // ==========================================
+//   // IMAGE UPLOAD
+//   // ==========================================
+
+//   const handleImageUpload = (e) => {
+//     const file = e.target.files[0];
+
+//     if (!file) return;
+
+//     // Check file type
+//     const allowedTypes = ["image/jpeg", "image/png"];
+
+//     if (!allowedTypes.includes(file.type)) {
+//       alert("Please upload a JPG or PNG image.");
+//       return;
+//     }
+
+//     // Check 20MB limit
+//     if (file.size > 20 * 1024 * 1024) {
+//       alert("Image size must be less than 20MB.");
+//       return;
+//     }
+
+//     setSelectedImage(file);
+
+//     console.log("Selected image:", file);
+//   };
+
+//   // ==========================================
+//   // SUBMIT MANUAL FORM
+//   // ==========================================
+
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
+
+//     console.log("Plant submission:", formData);
+//   };
+
+//   // ==========================================
+//   // AI ANALYSIS
+//   // ==========================================
+
+//   const handleAIAnalysis = () => {
+//     if (!selectedImage) {
+//       alert("Please upload a specimen image first.");
+//       return;
+//     }
+
+//     console.log("Sending image to AI:", selectedImage);
+
+//     // Later this will call your backend:
+//     //
+//     // const formData = new FormData();
+//     // formData.append("image", selectedImage);
+//     //
+//     // axios.post("/api/ai/identify", formData)
+//     //   .then(response => {
+//     //      setFormData(response.data);
+//     //   });
+//   };
+
+//   return (
+//     <div className="min-h-full bg-[#f7faf8] px-6 py-7">
+
+//       {/* ==========================================
+//           CONTENT CONTAINER
+//       ========================================== */}
+
+//       <div className="mx-auto max-w-[840px]">
+
+//         {/* ==========================================
+//             PAGE TITLE
+//         ========================================== */}
+
+//         <div>
+//           <h1 className="text-[22px] font-semibold text-[#092b1b]">
+//             New Plant Submission
+//           </h1>
+
+//           <p className="mt-1 text-[14px] text-gray-500">
+//             Add a new specimen to the Flora-Digitalis herbarium
+//           </p>
+//         </div>
+
+//         {/* ==========================================
+//             MODE SELECTOR
+//         ========================================== */}
+
+//         <div className="mt-6 flex gap-3">
+
+//           {/* MANUAL ENTRY */}
+
+//           <button
+//             type="button"
+//             onClick={() => setSubmissionMode("manual")}
+//             className={`flex h-[61px] w-[192px] items-center gap-3 rounded-xl border px-5 text-left transition ${
+//               submissionMode === "manual"
+//                 ? "border-[#16a34a] bg-[#eafff0]"
+//                 : "border-[#dce7df] bg-white hover:border-[#b9c9bf]"
+//             }`}
+//           >
+
+//             <div className="text-[20px]">
+//               📋
+//             </div>
+
+//             <div>
+//               <p className="text-[14px] font-medium text-[#0b2d1d]">
+//                 Manual Entry
+//               </p>
+
+//               <p className="mt-0.5 text-[11px] text-gray-500">
+//                 Fill in all fields manually
+//               </p>
+//             </div>
+
+//           </button>
+
+
+//           {/* AI ASSISTED */}
+
+//           <button
+//             type="button"
+//             onClick={() => setSubmissionMode("ai")}
+//             className={`flex h-[61px] w-[230px] items-center gap-3 rounded-xl border px-5 text-left transition ${
+//               submissionMode === "ai"
+//                 ? "border-[#16a34a] bg-[#eafff0]"
+//                 : "border-[#dce7df] bg-white hover:border-[#b9c9bf]"
+//             }`}
+//           >
+
+//             <div className="text-[20px]">
+//               🤖
+//             </div>
+
+//             <div>
+//               <p className="text-[14px] font-medium text-[#0b2d1d]">
+//                 AI-Assisted
+//               </p>
+
+//               <p className="mt-0.5 text-[11px] text-gray-500">
+//                 Upload image, auto-fill with AI
+//               </p>
+//             </div>
+
+//           </button>
+
+//         </div>
+
+
+//         {/* ==========================================
+//             CONDITIONAL CONTENT
+//         ========================================== */}
+
+//         {submissionMode === "manual" ? (
+
+//           /* ========================================
+//              MANUAL FORM
+//           ======================================== */
+
+//           <ManualSubmissionForm
+//             formData={formData}
+//             handleChange={handleChange}
+//             handleSubmit={handleSubmit}
+//           />
+
+//         ) : (
+
+//           /* ========================================
+//              AI SCREEN
+//           ======================================== */
+
+//           <AIUploadScreen
+//             selectedImage={selectedImage}
+//             handleImageUpload={handleImageUpload}
+//             handleAIAnalysis={handleAIAnalysis}
+//           />
+
+//         )}
+
+//       </div>
+
+//     </div>
+//   );
+// };
+
+
+// // ==================================================
+// // AI UPLOAD SCREEN
+// // ==================================================
+
+// const AIUploadScreen = ({
+//   selectedImage,
+//   handleImageUpload,
+//   handleAIAnalysis,
+// }) => {
+
+//   return (
+//     <div className="mt-6">
+
+//       {/* ==========================================
+//           UPLOAD CARD
+//       ========================================== */}
+
+//       <label
+//         htmlFor="aiSpecimenImage"
+//         className="flex min-h-[282px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#dce7df] bg-white transition hover:border-[#16a34a] hover:bg-[#fbfefc]"
+//       >
+
+//         {/* UPLOAD ICON */}
+
+//         <div className="flex h-[60px] w-[60px] items-center justify-center rounded-2xl bg-[#dcfce7]">
+
+//           <svg
+//             width="28"
+//             height="28"
+//             viewBox="0 0 24 24"
+//             fill="none"
+//             stroke="#16a34a"
+//             strokeWidth="1.8"
+//             strokeLinecap="round"
+//             strokeLinejoin="round"
+//           >
+//             <path d="M12 16V4" />
+//             <path d="M7 9l5-5 5 5" />
+//             <path d="M5 20h14" />
+//           </svg>
+
+//         </div>
+
+
+//         {/* TITLE */}
+
+//         <h2 className="mt-5 text-[15px] font-medium text-[#092b1b]">
+//           Upload Herbarium Specimen Image
+//         </h2>
+
+
+//         {/* DESCRIPTION */}
+
+//         <p className="mt-1 text-[12px] text-gray-500">
+//           Our AI model will automatically identify the plant and extract botanical data
+//         </p>
+
+
+//         {/* TAGS */}
+
+//         <div className="mt-4 flex gap-2">
+
+//           <span className="rounded-full bg-[#f1f5f2] px-3 py-1 text-[11px] text-[#7a8e82]">
+//             High-resolution scan
+//           </span>
+
+//           <span className="rounded-full bg-[#f1f5f2] px-3 py-1 text-[11px] text-[#7a8e82]">
+//             Clear labelling
+//           </span>
+
+//           <span className="rounded-full bg-[#f1f5f2] px-3 py-1 text-[11px] text-[#7a8e82]">
+//             Multiple angles preferred
+//           </span>
+
+//         </div>
+
+
+//         {/* HIDDEN FILE INPUT */}
+
+//         <input
+//           id="aiSpecimenImage"
+//           type="file"
+//           accept="image/jpeg,image/png"
+//           onChange={handleImageUpload}
+//           className="hidden"
+//         />
+
+//       </label>
+
+
+//       {/* ==========================================
+//           SELECTED IMAGE
+//       ========================================== */}
+
+//       {selectedImage && (
+
+//         <div className="mt-4 rounded-xl border border-[#dce7df] bg-white p-4">
+
+//           <div className="flex items-center justify-between">
+
+//             <div>
+
+//               <p className="text-[13px] font-medium text-[#092b1b]">
+//                 Selected specimen
+//               </p>
+
+//               <p className="mt-1 text-[12px] text-gray-500">
+//                 {selectedImage.name}
+//               </p>
+
+//             </div>
+
+//             <button
+//               type="button"
+//               onClick={handleAIAnalysis}
+//               className="rounded-lg bg-[#16a34a] px-5 py-2.5 text-[13px] font-medium text-white hover:bg-[#12863c]"
+//             >
+//               Analyze with AI
+//             </button>
+
+//           </div>
+
+//         </div>
+
+//       )}
+
+//     </div>
+//   );
+// };
+
+
+// // ==================================================
+// // MANUAL SUBMISSION FORM
+// // ==================================================
+
+// const ManualSubmissionForm = ({
+//   formData,
+//   handleChange,
+//   handleSubmit,
+// }) => {
+
+//   return (
+//     <form onSubmit={handleSubmit}>
+
+//       <div className="mt-6 rounded-xl border border-[#dce7df] bg-white p-6">
+
+//         {/* TAXONOMIC INFORMATION */}
+
+//         <FormSectionTitle title="Taxonomic Information" />
+
+//         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+//           <FormInput
+//             label="Scientific Name"
+//             name="scientificName"
+//             value={formData.scientificName}
+//             onChange={handleChange}
+//             placeholder="e.g. Adiantum capillus-veneris"
+//             required
+//           />
+
+//           <FormInput
+//             label="Common Name"
+//             name="commonName"
+//             value={formData.commonName}
+//             onChange={handleChange}
+//             placeholder="e.g. Maidenhair Fern"
+//           />
+
+//           <FormSelect
+//             label="Family"
+//             name="family"
+//             value={formData.family}
+//             onChange={handleChange}
+//             options={[
+//               "Pteridaceae",
+//               "Asteraceae",
+//               "Fabaceae",
+//               "Poaceae",
+//               "Rosaceae",
+//               "Solanaceae",
+//             ]}
+//             required
+//           />
+
+//           <FormSelect
+//             label="Province"
+//             name="province"
+//             value={formData.province}
+//             onChange={handleChange}
+//             options={[
+//               "Sindh",
+//               "Punjab",
+//               "Balochistan",
+//               "Khyber Pakhtunkhwa",
+//               "Gilgit-Baltistan",
+//               "Azad Jammu & Kashmir",
+//             ]}
+//             required
+//           />
+
+//         </div>
+
+
+//         {/* COLLECTION DETAILS */}
+
+//         <div className="mt-7">
+
+//           <FormSectionTitle title="Collection Details" />
+
+//           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+//             <FormInput
+//               label="Habitat"
+//               name="habitat"
+//               value={formData.habitat}
+//               onChange={handleChange}
+//               placeholder="e.g. Rocky slopes, riverbanks"
+//             />
+
+//             <FormInput
+//               label="Collector Name"
+//               name="collectorName"
+//               value={formData.collectorName}
+//               onChange={handleChange}
+//               placeholder="e.g. Dr. Ahmad Khan"
+//               required
+//             />
+
+//           </div>
+
+
+//           <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+
+//             <FormInput
+//               label="Collection Date"
+//               name="collectionDate"
+//               type="date"
+//               value={formData.collectionDate}
+//               onChange={handleChange}
+//               required
+//             />
+
+//             <FormInput
+//               label="Latitude"
+//               name="latitude"
+//               value={formData.latitude}
+//               onChange={handleChange}
+//               placeholder="33.7291"
+//             />
+
+//             <FormInput
+//               label="Longitude"
+//               name="longitude"
+//               value={formData.longitude}
+//               onChange={handleChange}
+//               placeholder="73.0931"
+//             />
+
+//           </div>
+
+//         </div>
+
+
+//         {/* DESCRIPTION */}
+
+//         <div className="mt-7">
+
+//           <label className="mb-2 block text-[13px] font-medium text-[#0b2d1d]">
+//             Description / Notes
+//           </label>
+
+//           <textarea
+//             name="description"
+//             value={formData.description}
+//             onChange={handleChange}
+//             rows={4}
+//             placeholder="Detailed botanical description, morphological features, ecological context..."
+//             className="w-full resize-none rounded-lg border border-[#cfe4d5] bg-[#f1fbf4] px-3 py-3 text-[13px] outline-none placeholder:text-[#88a496] focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]"
+//           />
+
+//         </div>
+
+
+//         {/* IMAGE */}
+
+//         <div className="mt-7">
+
+//           <FormSectionTitle title="Plant Images" />
+
+//           <label
+//             htmlFor="plantImages"
+//             className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#cbded1] bg-[#f5faf7] hover:border-[#16a34a]"
+//           >
+
+//             <p className="text-[14px] font-medium text-[#0b2d1d]">
+//               Upload plant images
+//             </p>
+
+//             <p className="mt-1 text-[11px] text-[#739080]">
+//               Whole plant, leaves, flowers, seeds — JPG/PNG, max 20MB each
+//             </p>
+
+//             <input
+//               id="plantImages"
+//               type="file"
+//               multiple
+//               accept="image/jpeg,image/png"
+//               className="hidden"
+//             />
+
+//           </label>
+
+//         </div>
+
+
+//         {/* BUTTONS */}
+
+//         <div className="mt-7 flex justify-end gap-3">
+
+//           <button
+//             type="button"
+//             className="rounded-lg border border-[#d5e2da] bg-white px-5 py-2.5 text-[13px] font-medium text-[#33483b]"
+//           >
+//             Save as Draft
+//           </button>
+
+//           <button
+//             type="submit"
+//             className="rounded-lg bg-[#16a34a] px-6 py-2.5 text-[13px] font-medium text-white hover:bg-[#12863c]"
+//           >
+//             Submit for Review
+//           </button>
+
+//         </div>
+
+//       </div>
+
+//     </form>
+//   );
+// };
+
+
+// // ==================================================
+// // SECTION TITLE
+// // ==================================================
+
+// const FormSectionTitle = ({ title }) => {
+
+//   return (
+//     <div className="mb-4 border-b border-[#dce7df] pb-2">
+
+//       <h2 className="text-[13px] font-medium text-[#0b2d1d]">
+//         {title}
+//       </h2>
+
+//     </div>
+//   );
+// };
+
+
+// // ==================================================
+// // INPUT
+// // ==================================================
+
+// const FormInput = ({
+//   label,
+//   name,
+//   value,
+//   onChange,
+//   placeholder,
+//   type = "text",
+//   required = false,
+// }) => {
+
+//   return (
+//     <div>
+
+//       <label className="mb-2 block text-[13px] font-medium text-[#0b2d1d]">
+
+//         {label}
+
+//         {required && (
+//           <span className="ml-1 text-red-500">
+//             *
+//           </span>
+//         )}
+
+//       </label>
+
+//       <input
+//         type={type}
+//         name={name}
+//         value={value}
+//         onChange={onChange}
+//         placeholder={placeholder}
+//         required={required}
+//         className="h-10 w-full rounded-lg border border-[#cfe4d5] bg-[#f1fbf4] px-3 text-[13px] outline-none placeholder:text-[#88a496] focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]"
+//       />
+
+//     </div>
+//   );
+// };
+
+
+// // ==================================================
+// // SELECT
+// // ==================================================
+
+// const FormSelect = ({
+//   label,
+//   name,
+//   value,
+//   onChange,
+//   options,
+//   required = false,
+// }) => {
+
+//   return (
+//     <div>
+
+//       <label className="mb-2 block text-[13px] font-medium text-[#0b2d1d]">
+
+//         {label}
+
+//         {required && (
+//           <span className="ml-1 text-red-500">
+//             *
+//           </span>
+//         )}
+
+//       </label>
+
+//       <select
+//         name={name}
+//         value={value}
+//         onChange={onChange}
+//         required={required}
+//         className="h-10 w-full rounded-lg border border-[#cfe4d5] bg-[#f1fbf4] px-3 text-[13px] outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]"
+//       >
+
+//         <option value="">
+//           Select {label}...
+//         </option>
+
+//         {options.map((option) => (
+//           <option
+//             key={option}
+//             value={option}
+//           >
+//             {option}
+//           </option>
+//         ))}
+
+//       </select>
+
+//     </div>
+//   );
+// };
+
+
+// export default BotanistNewSubmission;
+
+
+
+
 import { useState } from "react";
+import axiosInstance from "../../../api/api";
+import { submissionApi, draftSubmissionApi } from "../../../api/authApi";
+
 
 const BotanistNewSubmission = () => {
   const [submissionMode, setSubmissionMode] = useState("manual");
   const [selectedImage, setSelectedImage] = useState(null);
 
   const [formData, setFormData] = useState({
-    scientificName: "",
-    commonName: "",
+    name: "",
     family: "",
-    province: "",
+    species: "",
+
+    location_code: "",
+    collection_no: "",
+
     habitat: "",
-    collectorName: "",
-    collectionDate: "",
+    habit: "",
+    flower_color: "",
+
+    collector_name: "",
+    collection_group_members: "",
+
+    collection_date: "",
+    locality: "",
+
     latitude: "",
     longitude: "",
-    description: "",
   });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ==========================================
   // FORM CHANGE
@@ -472,12 +1171,14 @@ const BotanistNewSubmission = () => {
   // IMAGE UPLOAD
   // ==========================================
 
+  // Images are only selected for now.
+  // They will NOT be sent to the backend in Phase 1.
+
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
 
     if (!file) return;
 
-    // Check file type
     const allowedTypes = ["image/jpeg", "image/png"];
 
     if (!allowedTypes.includes(file.type)) {
@@ -485,7 +1186,6 @@ const BotanistNewSubmission = () => {
       return;
     }
 
-    // Check 20MB limit
     if (file.size > 20 * 1024 * 1024) {
       alert("Image size must be less than 20MB.");
       return;
@@ -500,10 +1200,151 @@ const BotanistNewSubmission = () => {
   // SUBMIT MANUAL FORM
   // ==========================================
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Plant submission:", formData);
+    try {
+      setIsSubmitting(true);
+
+      // Create payload containing ONLY database input fields.
+      const payload = {
+        name: formData.name.trim(),
+        family: formData.family.trim(),
+        species: formData.species.trim(),
+
+        location_code: formData.location_code.trim(),
+        collection_no: formData.collection_no.trim(),
+
+        habitat: formData.habitat.trim(),
+        habit: formData.habit.trim(),
+        flower_color: formData.flower_color.trim(),
+
+        collector_name: formData.collector_name.trim(),
+        collection_group_members:
+          formData.collection_group_members.trim(),
+
+        collection_date: formData.collection_date,
+        locality: formData.locality.trim(),
+
+        latitude:
+          formData.latitude === ""
+            ? null
+            : Number(formData.latitude),
+
+        longitude:
+          formData.longitude === ""
+            ? null
+            : Number(formData.longitude),
+      };
+
+      console.log("Sending submission:", payload);
+
+      const response = await submissionApi(payload);  
+
+      ;
+
+      console.log("Submission successful:", response.data);
+
+      alert("Plant submission sent successfully!");
+
+      // Reset form after successful submission
+      setFormData({
+        name: "",
+        family: "",
+        species: "",
+
+        location_code: "",
+        collection_no: "",
+
+        habitat: "",
+        habit: "",
+        flower_color: "",
+
+        collector_name: "",
+        collection_group_members: "",
+
+        collection_date: "",
+        locality: "",
+
+        latitude: "",
+        longitude: "",
+      });
+
+      setSelectedImage(null);
+    } catch (error) {
+      console.error("Submission failed:", error);
+
+      console.error(
+        "Backend response:",
+        error.response?.data
+      );
+
+      alert(
+        error.response?.data?.message ||
+          "Failed to submit plant. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // ==========================================
+  // SAVE AS DRAFT
+  // ==========================================
+
+  const handleSaveDraft = async () => {
+    try {
+      setIsSubmitting(true);
+
+      const payload = {
+        name: formData.name.trim(),
+        family: formData.family.trim(),
+        species: formData.species.trim(),
+
+        location_code: formData.location_code.trim(),
+        collection_no: formData.collection_no.trim(),
+
+        habitat: formData.habitat.trim(),
+        habit: formData.habit.trim(),
+        flower_color: formData.flower_color.trim(),
+
+        collector_name: formData.collector_name.trim(),
+        collection_group_members:
+          formData.collection_group_members.trim(),
+
+        collection_date:
+          formData.collection_date || null,
+
+        locality: formData.locality.trim(),
+
+        latitude:
+          formData.latitude === ""
+            ? null
+            : Number(formData.latitude),
+
+        longitude:
+          formData.longitude === ""
+            ? null
+            : Number(formData.longitude),
+
+        status: "draft",
+      };
+
+      const response = await draftSubmissionApi(payload);
+
+      console.log("Draft saved:", response.data);
+
+      alert("Draft saved successfully!");
+    } catch (error) {
+      console.error("Draft save failed:", error);
+
+      alert(
+        error.response?.data?.message ||
+          "Failed to save draft."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // ==========================================
@@ -518,15 +1359,20 @@ const BotanistNewSubmission = () => {
 
     console.log("Sending image to AI:", selectedImage);
 
-    // Later this will call your backend:
-    //
-    // const formData = new FormData();
-    // formData.append("image", selectedImage);
-    //
-    // axios.post("/api/ai/identify", formData)
-    //   .then(response => {
-    //      setFormData(response.data);
-    //   });
+    /*
+      AI integration will be implemented later.
+
+      Example future implementation:
+
+      const data = new FormData();
+
+      data.append("image", selectedImage);
+
+      axios.post(
+        "http://localhost:4000/api/ai/identify",
+        data
+      );
+    */
   };
 
   return (
@@ -569,7 +1415,6 @@ const BotanistNewSubmission = () => {
                 : "border-[#dce7df] bg-white hover:border-[#b9c9bf]"
             }`}
           >
-
             <div className="text-[20px]">
               📋
             </div>
@@ -583,9 +1428,7 @@ const BotanistNewSubmission = () => {
                 Fill in all fields manually
               </p>
             </div>
-
           </button>
-
 
           {/* AI ASSISTED */}
 
@@ -598,7 +1441,6 @@ const BotanistNewSubmission = () => {
                 : "border-[#dce7df] bg-white hover:border-[#b9c9bf]"
             }`}
           >
-
             <div className="text-[20px]">
               🤖
             </div>
@@ -612,44 +1454,31 @@ const BotanistNewSubmission = () => {
                 Upload image, auto-fill with AI
               </p>
             </div>
-
           </button>
 
         </div>
-
 
         {/* ==========================================
             CONDITIONAL CONTENT
         ========================================== */}
 
         {submissionMode === "manual" ? (
-
-          /* ========================================
-             MANUAL FORM
-          ======================================== */
-
           <ManualSubmissionForm
             formData={formData}
             handleChange={handleChange}
             handleSubmit={handleSubmit}
+            handleSaveDraft={handleSaveDraft}
+            isSubmitting={isSubmitting}
           />
-
         ) : (
-
-          /* ========================================
-             AI SCREEN
-          ======================================== */
-
           <AIUploadScreen
             selectedImage={selectedImage}
             handleImageUpload={handleImageUpload}
             handleAIAnalysis={handleAIAnalysis}
           />
-
         )}
 
       </div>
-
     </div>
   );
 };
@@ -664,20 +1493,15 @@ const AIUploadScreen = ({
   handleImageUpload,
   handleAIAnalysis,
 }) => {
-
   return (
     <div className="mt-6">
 
-      {/* ==========================================
-          UPLOAD CARD
-      ========================================== */}
+      {/* UPLOAD CARD */}
 
       <label
         htmlFor="aiSpecimenImage"
         className="flex min-h-[282px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#dce7df] bg-white transition hover:border-[#16a34a] hover:bg-[#fbfefc]"
       >
-
-        {/* UPLOAD ICON */}
 
         <div className="flex h-[60px] w-[60px] items-center justify-center rounded-2xl bg-[#dcfce7]">
 
@@ -698,22 +1522,13 @@ const AIUploadScreen = ({
 
         </div>
 
-
-        {/* TITLE */}
-
         <h2 className="mt-5 text-[15px] font-medium text-[#092b1b]">
           Upload Herbarium Specimen Image
         </h2>
 
-
-        {/* DESCRIPTION */}
-
         <p className="mt-1 text-[12px] text-gray-500">
           Our AI model will automatically identify the plant and extract botanical data
         </p>
-
-
-        {/* TAGS */}
 
         <div className="mt-4 flex gap-2">
 
@@ -731,9 +1546,6 @@ const AIUploadScreen = ({
 
         </div>
 
-
-        {/* HIDDEN FILE INPUT */}
-
         <input
           id="aiSpecimenImage"
           type="file"
@@ -744,19 +1556,14 @@ const AIUploadScreen = ({
 
       </label>
 
-
-      {/* ==========================================
-          SELECTED IMAGE
-      ========================================== */}
+      {/* SELECTED IMAGE */}
 
       {selectedImage && (
-
         <div className="mt-4 rounded-xl border border-[#dce7df] bg-white p-4">
 
           <div className="flex items-center justify-between">
 
             <div>
-
               <p className="text-[13px] font-medium text-[#092b1b]">
                 Selected specimen
               </p>
@@ -764,7 +1571,6 @@ const AIUploadScreen = ({
               <p className="mt-1 text-[12px] text-gray-500">
                 {selectedImage.name}
               </p>
-
             </div>
 
             <button
@@ -778,7 +1584,6 @@ const AIUploadScreen = ({
           </div>
 
         </div>
-
       )}
 
     </div>
@@ -794,14 +1599,17 @@ const ManualSubmissionForm = ({
   formData,
   handleChange,
   handleSubmit,
+  handleSaveDraft,
+  isSubmitting,
 }) => {
-
   return (
     <form onSubmit={handleSubmit}>
 
       <div className="mt-6 rounded-xl border border-[#dce7df] bg-white p-6">
 
-        {/* TAXONOMIC INFORMATION */}
+        {/* ==========================================
+            TAXONOMIC INFORMATION
+        ========================================== */}
 
         <FormSectionTitle title="Taxonomic Information" />
 
@@ -809,19 +1617,20 @@ const ManualSubmissionForm = ({
 
           <FormInput
             label="Scientific Name"
-            name="scientificName"
-            value={formData.scientificName}
+            name="name"
+            value={formData.name}
             onChange={handleChange}
             placeholder="e.g. Adiantum capillus-veneris"
             required
           />
 
           <FormInput
-            label="Common Name"
-            name="commonName"
-            value={formData.commonName}
+            label="Species"
+            name="species"
+            value={formData.species}
             onChange={handleChange}
-            placeholder="e.g. Maidenhair Fern"
+            placeholder="e.g. capillus-veneris"
+            required
           />
 
           <FormSelect
@@ -840,26 +1649,28 @@ const ManualSubmissionForm = ({
             required
           />
 
-          <FormSelect
-            label="Province"
-            name="province"
-            value={formData.province}
+          <FormInput
+            label="Habit"
+            name="habit"
+            value={formData.habit}
             onChange={handleChange}
-            options={[
-              "Sindh",
-              "Punjab",
-              "Balochistan",
-              "Khyber Pakhtunkhwa",
-              "Gilgit-Baltistan",
-              "Azad Jammu & Kashmir",
-            ]}
-            required
+            placeholder="e.g. Herb, Shrub, Tree"
+          />
+
+          <FormInput
+            label="Flower Color"
+            name="flower_color"
+            value={formData.flower_color}
+            onChange={handleChange}
+            placeholder="e.g. White, Yellow, Purple"
           />
 
         </div>
 
 
-        {/* COLLECTION DETAILS */}
+        {/* ==========================================
+            COLLECTION DETAILS
+        ========================================== */}
 
         <div className="mt-7">
 
@@ -868,50 +1679,76 @@ const ManualSubmissionForm = ({
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 
             <FormInput
-              label="Habitat"
-              name="habitat"
-              value={formData.habitat}
+              label="Collection No."
+              name="collection_no"
+              value={formData.collection_no}
               onChange={handleChange}
-              placeholder="e.g. Rocky slopes, riverbanks"
+              placeholder="e.g. COL-2026-001"
+            />
+
+            <FormInput
+              label="Location Code"
+              name="location_code"
+              value={formData.location_code}
+              onChange={handleChange}
+              placeholder="e.g. KHI-UOK-001"
             />
 
             <FormInput
               label="Collector Name"
-              name="collectorName"
-              value={formData.collectorName}
+              name="collector_name"
+              value={formData.collector_name}
               onChange={handleChange}
               placeholder="e.g. Dr. Ahmad Khan"
               required
             />
 
+            <FormInput
+              label="Collection Group Members"
+              name="collection_group_members"
+              value={formData.collection_group_members}
+              onChange={handleChange}
+              placeholder="e.g. Ali, Ahmed, Sara"
+            />
+
           </div>
 
 
-          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
 
             <FormInput
               label="Collection Date"
-              name="collectionDate"
+              name="collection_date"
               type="date"
-              value={formData.collectionDate}
+              value={formData.collection_date}
               onChange={handleChange}
               required
             />
 
             <FormInput
-              label="Latitude"
-              name="latitude"
-              value={formData.latitude}
+              label="Locality"
+              name="locality"
+              value={formData.locality}
               onChange={handleChange}
-              placeholder="33.7291"
+              placeholder="e.g. University of Karachi Botanical Garden"
             />
 
-            <FormInput
-              label="Longitude"
-              name="longitude"
-              value={formData.longitude}
+          </div>
+
+
+          <div className="mt-4">
+
+            <label className="mb-2 block text-[13px] font-medium text-[#0b2d1d]">
+              Habitat
+            </label>
+
+            <textarea
+              name="habitat"
+              value={formData.habitat}
               onChange={handleChange}
-              placeholder="73.0931"
+              rows={3}
+              placeholder="e.g. Rocky slopes, riverbanks, forest floor..."
+              className="w-full resize-none rounded-lg border border-[#cfe4d5] bg-[#f1fbf4] px-3 py-3 text-[13px] outline-none placeholder:text-[#88a496] focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]"
             />
 
           </div>
@@ -919,27 +1756,44 @@ const ManualSubmissionForm = ({
         </div>
 
 
-        {/* DESCRIPTION */}
+        {/* ==========================================
+            GEOGRAPHIC INFORMATION
+        ========================================== */}
 
         <div className="mt-7">
 
-          <label className="mb-2 block text-[13px] font-medium text-[#0b2d1d]">
-            Description / Notes
-          </label>
+          <FormSectionTitle title="Geographic Information" />
 
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            rows={4}
-            placeholder="Detailed botanical description, morphological features, ecological context..."
-            className="w-full resize-none rounded-lg border border-[#cfe4d5] bg-[#f1fbf4] px-3 py-3 text-[13px] outline-none placeholder:text-[#88a496] focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]"
-          />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+            <FormInput
+              label="Latitude"
+              name="latitude"
+              type="number"
+              step="any"
+              value={formData.latitude}
+              onChange={handleChange}
+              placeholder="e.g. 24.9412"
+            />
+
+            <FormInput
+              label="Longitude"
+              name="longitude"
+              type="number"
+              step="any"
+              value={formData.longitude}
+              onChange={handleChange}
+              placeholder="e.g. 67.1148"
+            />
+
+          </div>
 
         </div>
 
 
-        {/* IMAGE */}
+        {/* ==========================================
+            IMAGE
+        ========================================== */}
 
         <div className="mt-7">
 
@@ -968,25 +1822,36 @@ const ManualSubmissionForm = ({
 
           </label>
 
+          <p className="mt-2 text-[11px] text-gray-400">
+            Image upload will be connected to Cloudinary in the next phase.
+          </p>
+
         </div>
 
 
-        {/* BUTTONS */}
+        {/* ==========================================
+            BUTTONS
+        ========================================== */}
 
         <div className="mt-7 flex justify-end gap-3">
 
           <button
             type="button"
-            className="rounded-lg border border-[#d5e2da] bg-white px-5 py-2.5 text-[13px] font-medium text-[#33483b]"
+            onClick={handleSaveDraft}
+            disabled={isSubmitting}
+            className="rounded-lg border border-[#d5e2da] bg-white px-5 py-2.5 text-[13px] font-medium text-[#33483b] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Save as Draft
           </button>
 
           <button
             type="submit"
-            className="rounded-lg bg-[#16a34a] px-6 py-2.5 text-[13px] font-medium text-white hover:bg-[#12863c]"
+            disabled={isSubmitting}
+            className="rounded-lg bg-[#16a34a] px-6 py-2.5 text-[13px] font-medium text-white hover:bg-[#12863c] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Submit for Review
+            {isSubmitting
+              ? "Submitting..."
+              : "Submit for Review"}
           </button>
 
         </div>
@@ -1003,7 +1868,6 @@ const ManualSubmissionForm = ({
 // ==================================================
 
 const FormSectionTitle = ({ title }) => {
-
   return (
     <div className="mb-4 border-b border-[#dce7df] pb-2">
 
@@ -1028,8 +1892,8 @@ const FormInput = ({
   placeholder,
   type = "text",
   required = false,
+  step,
 }) => {
-
   return (
     <div>
 
@@ -1052,6 +1916,7 @@ const FormInput = ({
         onChange={onChange}
         placeholder={placeholder}
         required={required}
+        step={step}
         className="h-10 w-full rounded-lg border border-[#cfe4d5] bg-[#f1fbf4] px-3 text-[13px] outline-none placeholder:text-[#88a496] focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]"
       />
 
@@ -1072,7 +1937,6 @@ const FormSelect = ({
   options,
   required = false,
 }) => {
-
   return (
     <div>
 

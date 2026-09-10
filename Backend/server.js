@@ -62,9 +62,16 @@ app.get('/', (req, res) => {
 const plantRoutes = require('./routes/plantRoutes');
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes'); 
+// const submissionRoutes = require("./routes/submissionRoutes");
+
+const submissionRoutes = require('./routes/submissionRoutes');
+
+app.use('/api/submissions', submissionRoutes);
+
 app.use('/api/plants', plantRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes); 
+// app.use("/api/submissions", submissionRoutes);
 
 // 404 handler
 app.use((req, res) => {
