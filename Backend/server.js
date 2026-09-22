@@ -30,13 +30,15 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const pool = require('./config/db');
 
-pool.query('SELECT 1')
-  .then(() => {
+// WITH THIS:
+(async () => {
+  try {
+    await pool.query('SELECT 1');
     console.log('✅ Database connection successful');
-  })
-  .catch((error) => {
+  } catch (error) {
     console.error('❌ Database connection failed:', error);
-  });
+  }
+})();
 
 dotenv.config();
 const path = require('path');
@@ -81,6 +83,18 @@ app.use('/api/plants', plantRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes); 
 // app.use("/api/submissions", submissionRoutes);
+
+// 1. Import your AI routes file
+const aiRoutes = require("./routes/aiRoutes"); // Adjust path if needed
+
+// 2. Mount it under '/api'
+app.use("/api", aiRoutes);
+
+
+// server.js
+const profileRoutes = require("./routes/ProfileRoutes");
+// Ensure the path matches '/api/profile'
+app.use('/api/profile', profileRoutes);
 
 // 404 handler
 app.use((req, res) => {

@@ -1,48 +1,38 @@
-// const express = require("express");
-
-// const router = express.Router();
-
-// const {
-//     createSubmission
-// } = require("../controllers/submissionController");
-
-// const {
-//     protect
-// } = require("../Middlewares/authMiddleware");
-
-// const upload = require("../Middlewares/uploadMiddleware");
-
-
-// // =====================================================
-// // CREATE BOTANIST SUBMISSION
-// // =====================================================
-
-// router.post(
-//     "/",
-//     protect,
-//     upload.array("images", 5),
-//     createSubmission
-// );
-
-
-// module.exports = router;
-
-
 const express = require('express');
 const router = express.Router();
 
 const {
     createSubmission,
-    saveDraft
+    saveDraft,
+    getMySubmissions,
+    rejectSubmission,
+    approveSubmission,
+    getAllSubmissionsForAdmin
 } = require('../controllers/submissionController');
 
-const {protect} = require("../Middlewares/authMiddleware");
+// 1. Import 'protect' from authMiddleware
+const { protect } = require("../Middlewares/authMiddleware");
+
+// 2. Import 'authorizeRoles' from roleMiddleware
+const { authorizeRoles } = require("../Middlewares/roleMiddleware");
+
+// 3. File upload middleware
 const upload = require("../Middlewares/uploadMiddleware");
 
-router.post('/', protect, upload.single('image'),createSubmission);
 
+// =====================================================
+// BOTANIST SUBMISSION ROUTES
+// =====================================================
+router.post('/', protect, upload.single('image'), createSubmission);
 router.post('/draft', protect, upload.single('image'), saveDraft);
+router.get("/my", protect, getMySubmissions);
 
+
+// =====================================================
+// ADMIN REVIEW ROUTES
+// =====================================================
+router.get('/admin/all', protect, authorizeRoles('admin'), getAllSubmissionsForAdmin);
+router.put('/admin/approve/:id', protect, authorizeRoles('admin'), approveSubmission);
+router.put('/admin/reject/:id', protect, authorizeRoles('admin'), rejectSubmission);
 
 module.exports = router;
-

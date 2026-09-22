@@ -9,6 +9,7 @@ const axiosInstance = axios.create({
     //  headers: { 'Content-Type': 'application/json' },
 });
 
+export const BACKEND_URL = new URL(axiosInstance.defaults.baseURL).origin;
 
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");

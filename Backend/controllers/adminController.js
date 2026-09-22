@@ -7,13 +7,13 @@
  *   protect + authorizeRoles('admin')
  *
  * Endpoints:
- *   GET  /api/admin/applications              → All applications (filterable)
- *   GET  /api/admin/applications/:id          → Single application detail
- *   PUT  /api/admin/applications/:id/approve  → Approve botanist
- *   PUT  /api/admin/applications/:id/reject   → Reject botanist
- *   GET  /api/admin/users                     → All users overview
- *   PUT  /api/admin/users/:id/deactivate      → Deactivate a user account
- *   PUT  /api/admin/users/:id/activate        → Reactivate a user account
+ *   GET  /api/admin/applications            → All applications (filterable)
+ *   GET  /api/admin/applications/:id        → Single application detail
+ *   PUT  /api/admin/applications/:id/approve  → Approve botanist & create account
+ *   PUT  /api/admin/applications/:id/reject   → Reject botanist application
+ *   GET  /api/admin/users                   → All users overview
+ *   PUT  /api/admin/users/:id/deactivate    → Deactivate a user account
+ *   PUT  /api/admin/users/:id/activate      → Reactivate a user account
  */
 
 const pool = require('../config/db');
@@ -25,10 +25,7 @@ const pool = require('../config/db');
 // ─────────────────────────────────────────────────────────────────────────────
 const getAllApplications = async (req, res) => {
   try {
-    // Optional query param: /api/admin/applications?status=pending
     const { status } = req.query;
-
-    // Validate status filter if provided
     const allowedStatuses = ['pending', 'approved', 'rejected'];
 
     if (status && !allowedStatuses.includes(status)) {
@@ -38,11 +35,11 @@ const getAllApplications = async (req, res) => {
       });
     }
 
-    // Build query dynamically based on filter
     let query = `
       SELECT
         ba.id                AS applicationId,
-        ba.status,
+        ba.full_name         AS applicantName,
+        ba.email             AS applicantEmail,
         ba.phone,
         ba.institution,
         ba.qualification,
@@ -50,21 +47,15 @@ const getAllApplications = async (req, res) => {
         ba.experience_years,
         ba.portfolio_url,
         ba.document_url,
+        ba.status,
         ba.rejection_reason,
         ba.applied_at,
         ba.reviewed_at,
 
-        -- Applicant info
-        u.id                 AS userId,
-        u.name               AS applicantName,
-        u.email              AS applicantEmail,
-        u.role               AS currentRole,
-
         -- Reviewer info (admin who acted)
-        reviewer.name        AS reviewedByName
+        reviewer.name        AS reviewedByName,
+        reviewer.email       AS reviewedByEmail
       FROM botanist_applications ba
-      INNER JOIN users u
-        ON ba.user_id = u.id
       LEFT JOIN users reviewer
         ON ba.reviewed_by = reviewer.id
     `;
@@ -82,9 +73,9 @@ const getAllApplications = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      count:   applications.length,
-      filter:  status || 'all',
-      data:    applications,
+      count: applications.length,
+      filter: status || 'all',
+      data: applications,
     });
 
   } catch (error) {
@@ -108,7 +99,8 @@ const getApplicationById = async (req, res) => {
     const [rows] = await pool.query(
       `SELECT
         ba.id                AS applicationId,
-        ba.status,
+        ba.full_name         AS applicantName,
+        ba.email             AS applicantEmail,
         ba.phone,
         ba.institution,
         ba.qualification,
@@ -116,22 +108,14 @@ const getApplicationById = async (req, res) => {
         ba.experience_years,
         ba.portfolio_url,
         ba.document_url,
+        ba.status,
         ba.rejection_reason,
         ba.applied_at,
         ba.reviewed_at,
 
-        u.id                 AS userId,
-        u.name               AS applicantName,
-        u.email              AS applicantEmail,
-        u.role               AS currentRole,
-        u.is_active          AS accountActive,
-        u.created_at         AS accountCreatedAt,
-
         reviewer.name        AS reviewedByName,
         reviewer.email       AS reviewedByEmail
       FROM botanist_applications ba
-      INNER JOIN users u
-        ON ba.user_id = u.id
       LEFT JOIN users reviewer
         ON ba.reviewed_by = reviewer.id
       WHERE ba.id = ?
@@ -148,7 +132,7 @@ const getApplicationById = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      data:    rows[0],
+      data: rows[0],
     });
 
   } catch (error) {
@@ -163,101 +147,132 @@ const getApplicationById = async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // @route   PUT /api/admin/applications/:id/approve
 // @desc    Approve a botanist application
-//          → sets application status = 'approved'
-//          → upgrades user role = 'botanist'
-//          Both updates happen inside a transaction — either both succeed
-//          or neither does. No partial state is ever saved.
+//          → Inserts user into `users` table with 'botanist' role
+//          → Sets application status = 'approved' and records reviewer ID
 // @access  Admin only
 // ─────────────────────────────────────────────────────────────────────────────
 const approveApplication = async (req, res) => {
-  // Get a dedicated connection from the pool for transaction control
   const connection = await pool.getConnection();
 
   try {
-    const { id }          = req.params;
-    const adminId         = req.user.userId; // from protect middleware
+    const { id } = req.params;
+    const adminId = req.user.userId;
 
-    // ── Step 1: Fetch the application ─────────────────────────────────────
-    const [rows] = await connection.query(
-      `SELECT ba.id, ba.status, ba.user_id, u.name, u.email, u.role
-       FROM botanist_applications ba
-       INNER JOIN users u ON ba.user_id = u.id
-       WHERE ba.id = ?
-       LIMIT 1`,
+    // ── Step 1: Fetch application ─────────────────────────────────────────
+    const [apps] = await connection.query(
+      `SELECT * FROM botanist_applications WHERE id = ? LIMIT 1`,
       [id]
     );
 
-    if (rows.length === 0) {
+    if (apps.length === 0) {
       return res.status(404).json({
         success: false,
         message: `Application with ID ${id} not found`,
       });
     }
 
-    const application = rows[0];
+    const app = apps[0];
 
-    // ── Step 2: Guard — only pending applications can be approved ─────────
-    if (application.status !== 'pending') {
+    // ── Step 2: Guard — check status ──────────────────────────────────────
+    if (app.status !== 'pending') {
       return res.status(400).json({
         success: false,
-        message: `Cannot approve. Application is already '${application.status}'.`,
-        currentStatus: application.status,
+        message: `Cannot approve. Application is already '${app.status}'.`,
       });
     }
 
-    // ── Step 3: Begin transaction ─────────────────────────────────────────
+    // ── Step 3: Check if email already exists in users table ──────────────
+    const [existingUsers] = await connection.query(
+      `SELECT id FROM users WHERE email = ? LIMIT 1`,
+      [app.email]
+    );
+
+    if (existingUsers.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `A user account with email '${app.email}' already exists.`,
+      });
+    }
+
+    // ── Step 4: Handle Password ───────────────────────────────────────────
+    // If password isn't in botanist_applications, set a default temporary hashed password
+    let userPassword = app.password;
+    if (!userPassword) {
+      const defaultTempPass = 'Botanist@123'; 
+      userPassword = await bcrypt.hash(defaultTempPass, 10);
+    }
+
+    // ── Step 5: Begin transaction ─────────────────────────────────────────
     await connection.beginTransaction();
 
-    // ── Step 4: Update application status → approved ──────────────────────
+    // ── Step 6: Insert into users table ───────────────────────────────────
+const [userResult] = await connection.query(
+  `INSERT INTO users (
+     name, 
+     email, 
+     password, 
+     role, 
+     is_active, 
+     phone, 
+     institution, 
+     qualification, 
+     specialisation, 
+     experience_years, 
+     portfolio_url, 
+     document_url
+   ) VALUES (?, ?, ?, 'botanist', TRUE, ?, ?, ?, ?, ?, ?, ?)`,
+  [
+    app.full_name,
+    app.email,
+    userPassword,
+    app.phone || null,
+    app.institution || null,
+    app.qualification || null,
+    app.specialisation || null,
+    app.experience_years || null,
+    app.portfolio_url || null,
+    app.document_url || null,
+  ]
+);
+
+    const newUserId = userResult.insertId;
+
+    // ── Step 7: Update application status ────────────────────────────────
     await connection.query(
       `UPDATE botanist_applications
-       SET
-         status      = 'approved',
+       SET 
+         status = 'approved',
          reviewed_at = NOW(),
          reviewed_by = ?
        WHERE id = ?`,
       [adminId, id]
     );
 
-    // ── Step 5: Upgrade user role → botanist ─────────────────────────────
-    // This is the only legitimate way a user ever becomes a botanist.
-    // No API endpoint or signup flow can do this — only admin approval.
-    await connection.query(
-      `UPDATE users
-       SET role = 'botanist'
-       WHERE id = ?`,
-      [application.user_id]
-    );
-
-    // ── Step 6: Commit both updates together ──────────────────────────────
+    // ── Step 8: Commit transaction ─────────────────────────────────────────
     await connection.commit();
 
     return res.status(200).json({
       success: true,
-      message: `Application approved. ${application.name} is now a verified botanist.`,
+      message: `Application approved successfully. User account created for ${app.full_name}.`,
       data: {
-        applicationId:  parseInt(id),
-        userId:         application.user_id,
-        applicantName:  application.name,
-        applicantEmail: application.email,
-        previousRole:   application.role,
-        newRole:        'botanist',
-        newStatus:      'approved',
-        reviewedBy:     adminId,
+        applicationId: parseInt(id),
+        newUserId,
+        applicantName: app.full_name,
+        applicantEmail: app.email,
+        role: 'botanist',
+        status: 'approved',
       },
     });
 
   } catch (error) {
-    // ── Rollback on any failure — database stays consistent ───────────────
     await connection.rollback();
-    console.error('❌ approveApplication Error:', error.message);
+    console.error('❌ approveApplication Error:', error); // Log full error object to see MySQL error details
     return res.status(500).json({
       success: false,
-      message: 'Approval failed. No changes were made.',
+      message: 'Failed to approve application',
+      error: error.message, // Send error message back during debugging
     });
-
   } finally {
-    // ── Always release connection back to pool ────────────────────────────
     connection.release();
   }
 };
@@ -266,50 +281,41 @@ const approveApplication = async (req, res) => {
 // @route   PUT /api/admin/applications/:id/reject
 // @desc    Reject a botanist application
 //          → sets application status = 'rejected'
-//          → user role stays 'user' (no upgrade)
-//          → optional rejection_reason stored for transparency
+//          → stores optional rejection_reason
 // @access  Admin only
 // ─────────────────────────────────────────────────────────────────────────────
 const rejectApplication = async (req, res) => {
   const connection = await pool.getConnection();
 
   try {
-    const { id }            = req.params;
-    const adminId           = req.user.userId;
-    const { rejection_reason } = req.body; // optional but recommended
+    const { id } = req.params;
+    const adminId = req.user.userId;
+    const { rejection_reason } = req.body;
 
-    // ── Step 1: Fetch the application ─────────────────────────────────────
-    const [rows] = await connection.query(
-      `SELECT ba.id, ba.status, ba.user_id, u.name, u.email
-       FROM botanist_applications ba
-       INNER JOIN users u ON ba.user_id = u.id
-       WHERE ba.id = ?
-       LIMIT 1`,
+    // ── Step 1: Fetch application ─────────────────────────────────────────
+    const [apps] = await connection.query(
+      `SELECT * FROM botanist_applications WHERE id = ? LIMIT 1`,
       [id]
     );
 
-    if (rows.length === 0) {
+    if (apps.length === 0) {
       return res.status(404).json({
         success: false,
         message: `Application with ID ${id} not found`,
       });
     }
 
-    const application = rows[0];
+    const app = apps[0];
 
-    // ── Step 2: Guard — only pending applications can be rejected ─────────
-    if (application.status !== 'pending') {
+    // ── Step 2: Guard — check status ──────────────────────────────────────
+    if (app.status !== 'pending') {
       return res.status(400).json({
         success: false,
-        message: `Cannot reject. Application is already '${application.status}'.`,
-        currentStatus: application.status,
+        message: `Cannot reject. Application is already '${app.status}'.`,
       });
     }
 
-    // ── Step 3: Begin transaction ─────────────────────────────────────────
-    await connection.beginTransaction();
-
-    // ── Step 4: Update application status → rejected ──────────────────────
+    // ── Step 3: Update application status to rejected ─────────────────────
     await connection.query(
       `UPDATE botanist_applications
        SET
@@ -325,33 +331,23 @@ const rejectApplication = async (req, res) => {
       ]
     );
 
-    // Note: user role intentionally stays 'user' — no UPDATE on users table
-
-    // ── Step 5: Commit ────────────────────────────────────────────────────
-    await connection.commit();
-
     return res.status(200).json({
       success: true,
-      message: `Application rejected. ${application.name} has been notified.`,
+      message: `Application rejected for ${app.full_name}.`,
       data: {
-        applicationId:   parseInt(id),
-        userId:          application.user_id,
-        applicantName:   application.name,
-        applicantEmail:  application.email,
-        newStatus:       'rejected',
+        applicationId: parseInt(id),
+        applicantName: app.full_name,
+        status: 'rejected',
         rejectionReason: rejection_reason || null,
-        reviewedBy:      adminId,
       },
     });
 
   } catch (error) {
-    await connection.rollback();
     console.error('❌ rejectApplication Error:', error.message);
     return res.status(500).json({
       success: false,
-      message: 'Rejection failed. No changes were made.',
+      message: 'Failed to reject application',
     });
-
   } finally {
     connection.release();
   }
@@ -359,7 +355,7 @@ const rejectApplication = async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // @route   GET /api/admin/users
-// @desc    Get all users with their application status if applicable
+// @desc    Get all users in the system
 // @access  Admin only
 // ─────────────────────────────────────────────────────────────────────────────
 const getAllUsers = async (req, res) => {
@@ -371,23 +367,15 @@ const getAllUsers = async (req, res) => {
         u.email,
         u.role,
         u.is_active,
-        u.created_at,
-
-        -- Pull latest application status if exists
-        ba.id          AS applicationId,
-        ba.status      AS applicationStatus,
-        ba.applied_at,
-        ba.reviewed_at
+        u.created_at
       FROM users u
-      LEFT JOIN botanist_applications ba
-        ON u.id = ba.user_id
       ORDER BY u.created_at DESC`
     );
 
     return res.status(200).json({
       success: true,
-      count:   users.length,
-      data:    users,
+      count: users.length,
+      data: users,
     });
 
   } catch (error) {
@@ -408,7 +396,6 @@ const deactivateUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Prevent admin from deactivating themselves
     if (parseInt(id) === req.user.userId) {
       return res.status(400).json({
         success: false,
