@@ -101,7 +101,7 @@ const protect = async (req, res, next) => {
     next();
 
   } catch (error) {
-    console.error('❌ Auth Middleware Error:', error.message);
+    console.error('❌ Auth Middleware Error:', error);
     return res.status(500).json({
       success: false,
       message: 'Authentication failed. Please try again.',
