@@ -79,6 +79,13 @@ const submissionRoutes = require('./routes/submissionRoutes');
 
 app.use('/api/submissions', submissionRoutes);
 
+const herbariumRoutes = require('./routes/herbariumRoutes');
+
+app.use('/api/herbarium', herbariumRoutes);
+
+const dashboardRoutes = require("./routes/dashboardRoutes");
+app.use("/api/botanist", dashboardRoutes);
+
 app.use('/api/plants', plantRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes); 
@@ -92,7 +99,7 @@ app.use("/api", aiRoutes);
 
 
 // server.js
-const profileRoutes = require("./routes/ProfileRoutes");
+const profileRoutes = require("./routes/profileRoutes");
 // Ensure the path matches '/api/profile'
 app.use('/api/profile', profileRoutes);
 

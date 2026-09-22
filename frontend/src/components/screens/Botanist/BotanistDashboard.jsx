@@ -1,158 +1,563 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
   FaLeaf,
   FaCheckCircle,
   FaClock,
   FaTimesCircle,
-  FaArrowUp,
-  FaArrowDown,
   FaArrowRight,
-  FaBell
+  FaBell,
+  FaRobot,
+  FaSyncAlt,
 } from "react-icons/fa";
 
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  LineChart,
+  Line,
+} from "recharts";
+
+import { getBotanistDashboardApi } from "../../../api/dashboardApi";
+
+
 const BotanistDashboard = () => {
-  const stats = [
+  const navigate = useNavigate();
+
+  // =========================================================
+  // STATE
+  // =========================================================
+
+  const [dashboard, setDashboard] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+
+
+  // =========================================================
+  // FETCH DASHBOARD
+  // =========================================================
+
+  const fetchDashboard = async (showRefresh = false) => {
+    try {
+      if (showRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+
+      setError("");
+
+      const data = await getBotanistDashboardApi();
+
+      setDashboard(data);
+
+    } catch (error) {
+      console.error(
+        "Failed to fetch botanist dashboard:",
+        error
+      );
+
+      setError(
+        error.response?.data?.message ||
+          "Failed to load dashboard data."
+      );
+
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+
+  // =========================================================
+  // INITIAL FETCH
+  // =========================================================
+
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+
+  // =========================================================
+  // LOADING STATE
+  // =========================================================
+
+  if (loading) {
+    return (
+      <main className="flex min-h-[calc(100vh-104px)] items-center justify-center bg-[#f7faf8]">
+
+        <div className="text-center">
+
+          <div
+            className="
+              mx-auto
+              mb-3
+              h-8
+              w-8
+              animate-spin
+              rounded-full
+              border-4
+              border-green-200
+              border-t-green-600
+            "
+          />
+
+          <p className="text-sm text-gray-500">
+            Loading your dashboard...
+          </p>
+
+        </div>
+
+      </main>
+    );
+  }
+
+
+  // =========================================================
+  // ERROR STATE
+  // =========================================================
+
+  if (error) {
+    return (
+      <main
+        className="
+          flex
+          min-h-[calc(100vh-104px)]
+          items-center
+          justify-center
+          bg-[#f7faf8]
+          px-5
+        "
+      >
+
+        <div
+          className="
+            w-full
+            max-w-md
+            rounded-xl
+            border
+            border-red-200
+            bg-white
+            p-6
+            text-center
+            shadow-sm
+          "
+        >
+
+          <div
+            className="
+              mx-auto
+              mb-4
+              flex
+              h-12
+              w-12
+              items-center
+              justify-center
+              rounded-full
+              bg-red-100
+            "
+          >
+            <FaTimesCircle
+              size={22}
+              className="text-red-500"
+            />
+          </div>
+
+
+          <h2 className="text-lg font-semibold text-[#062b1b]">
+            Unable to load dashboard
+          </h2>
+
+
+          <p className="mt-2 text-sm text-gray-500">
+            {error}
+          </p>
+
+
+          <button
+            onClick={() => fetchDashboard()}
+            className="
+              mt-5
+              inline-flex
+              items-center
+              gap-2
+              rounded-lg
+              bg-[#13a34a]
+              px-5
+              py-2.5
+              text-sm
+              font-medium
+              text-white
+              transition
+              hover:bg-[#108b3f]
+            "
+          >
+            <FaSyncAlt size={14} />
+
+            Try Again
+          </button>
+
+        </div>
+
+      </main>
+    );
+  }
+
+
+  // =========================================================
+  // NO DASHBOARD DATA
+  // =========================================================
+
+  if (!dashboard) {
+    return null;
+  }
+
+
+  // =========================================================
+  // DATA FROM API
+  // =========================================================
+
+  const {
+    user = {},
+    stats = {},
+    recentActivity = [],
+    monthlyContribution = [],
+    submissionTrend = [],
+    aiStats = {},
+  } = dashboard;
+
+
+  // =========================================================
+  // CURRENT DATE
+  // =========================================================
+
+  const currentDate = new Date().toLocaleDateString(
+    "en-US",
+    {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }
+  );
+
+
+  // =========================================================
+  // GREETING
+  // =========================================================
+
+  const currentHour = new Date().getHours();
+
+  let greeting = "Good morning";
+
+  if (currentHour >= 12 && currentHour < 17) {
+    greeting = "Good afternoon";
+  } else if (currentHour >= 17) {
+    greeting = "Good evening";
+  }
+
+
+  // =========================================================
+  // STAT CARDS
+  // =========================================================
+
+  const statCards = [
     {
       title: "TOTAL SUBMISSIONS",
-      value: "87",
-      change: "+12% vs last month",
-      positive: true,
+      value: Number(stats.totalSubmissions || 0),
       icon: <FaLeaf size={22} />,
       iconBg: "bg-green-100",
       iconColor: "text-green-600",
     },
+
     {
-      title: "ACCEPTED",
-      value: "61",
-      change: "+8% vs last month",
-      positive: true,
+      title: "APPROVED",
+      value: Number(stats.approved || 0),
       icon: <FaCheckCircle size={22} />,
       iconBg: "bg-green-100",
       iconColor: "text-green-600",
     },
+
     {
       title: "PENDING REVIEW",
-      value: "14",
-      change: "-3% vs last month",
-      positive: false,
+      value: Number(stats.pending || 0),
       icon: <FaClock size={22} />,
       iconBg: "bg-yellow-100",
       iconColor: "text-yellow-600",
     },
+
     {
       title: "REJECTED",
-      value: "12",
-      change: "",
-      positive: false,
+      value: Number(stats.rejected || 0),
       icon: <FaTimesCircle size={22} />,
       iconBg: "bg-red-100",
       iconColor: "text-red-600",
     },
   ];
 
-  const recentActivity = [
-    {
-      id: "SUB-2024-0087",
-      plant: "Adiantum capillus-veneris",
-      commonName: "Maidenhair Fern",
-      date: "2024-05-28",
-      status: "Approved",
-    },
-    {
-      id: "SUB-2024-0086",
-      plant: "Berberis lycium",
-      commonName: "Amlok",
-      date: "2024-05-24",
-      status: "Pending",
-    },
-    {
-      id: "SUB-2024-0085",
-      plant: "Artemisia absinthium",
-      commonName: "Wormwood",
-      date: "2024-05-19",
-      status: "Rejected",
-    },
-    {
-      id: "SUB-2024-0084",
-      plant: "Calotropis procera",
-      commonName: "Sodom Apple",
-      date: "2024-05-15",
-      status: "Approved",
-    },
-    {
-      id: "SUB-2024-0083",
-      plant: "Moringa oleifera",
-      commonName: "Drumstick Tree",
-      date: "2024-05-10",
-      status: "Revision",
-    },
-  ];
 
-  const notifications = [
-    {
-      message:
-        "Adiantum capillus-veneris approved by Dr. Nazia Malik",
-      time: "2h ago",
-      type: "success",
-    },
-    {
-      message:
-        "Revision requested for Moringa oleifera — see comments",
-      time: "1d ago",
-      type: "error",
-    },
-    {
-      message:
-        "New AI model update: improved accuracy for Pakistani flora",
-      time: "3d ago",
-      type: "info",
-    },
-  ];
+  // =========================================================
+  // APPROVAL RATE
+  // =========================================================
+  // IMPORTANT:
+  // This is NOT a hook.
+  // Therefore it is safe to calculate after
+  // the loading/error conditional returns.
+
+  const totalSubmissions = Number(
+    stats.totalSubmissions || 0
+  );
+
+  const approvedSubmissions = Number(
+    stats.approved || 0
+  );
+
+  const acceptanceRate =
+    totalSubmissions === 0
+      ? 0
+      : Math.round(
+          (approvedSubmissions / totalSubmissions) * 100
+        );
+
+
+  // =========================================================
+  // MONTHLY CHART DATA
+  // =========================================================
+
+  const monthlyChartData = monthlyContribution.map(
+    (item) => {
+
+      let monthLabel = item.month;
+
+      if (item.month) {
+
+        const date = new Date(
+          `${item.month}-01`
+        );
+
+        if (!Number.isNaN(date.getTime())) {
+
+          monthLabel = date.toLocaleDateString(
+            "en-US",
+            {
+              month: "short",
+            }
+          );
+
+        }
+      }
+
+      return {
+        month: monthLabel,
+
+        submitted: Number(
+          item.submitted || 0
+        ),
+
+        approved: Number(
+          item.approved || 0
+        ),
+      };
+    }
+  );
+
+
+  // =========================================================
+  // WEEKLY CHART DATA
+  // =========================================================
+
+  const weeklyChartData = submissionTrend.map(
+    (item, index) => ({
+      week: `W${index + 1}`,
+
+      submissions: Number(
+        item.submissions || 0
+      ),
+    })
+  );
+
+
+  // =========================================================
+  // FORMAT DATE
+  // =========================================================
+
+  const formatDate = (date) => {
+
+    if (!date) {
+      return "—";
+    }
+
+    const parsedDate = new Date(date);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return "—";
+    }
+
+    return parsedDate.toLocaleDateString(
+      "en-US",
+      {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }
+    );
+  };
+
+
+  // =========================================================
+  // RENDER
+  // =========================================================
 
   return (
     <main className="min-h-[calc(100vh-104px)] bg-[#f7faf8] px-5 py-6">
 
-      {/* ================= HEADER ================= */}
-      <div className="mb-6 flex items-start justify-between">
+
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
+
+      <div
+        className="
+          mb-6
+          flex
+          flex-col
+          gap-4
+          md:flex-row
+          md:items-start
+          md:justify-between
+        "
+      >
 
         <div>
+
           <h1 className="text-2xl font-semibold text-[#062b1b]">
-            Good morning, Dr. Ahmed 👋
+
+            {greeting},{" "}
+
+            {user.name || "Botanist"} 👋
+
           </h1>
 
+
           <p className="mt-1 text-sm text-gray-500">
-            Monday, 1 June 2026 — Here's your botanical activity summary
+            {currentDate} — Here's your botanical activity summary
           </p>
+
+
+          {user.institution && (
+            <p className="mt-1 text-xs text-gray-400">
+              {user.institution}
+            </p>
+          )}
+
         </div>
 
-        <button
-          className="
-            flex items-center gap-2
-            rounded-lg
-            bg-[#13a34a]
-            px-5 py-3
-            text-sm font-medium
-            text-white
-            transition
-            hover:bg-[#108b3f]
-          "
-        >
-          <FaLeaf size={18} />
-          New Submission
-        </button>
+
+        <div className="flex items-center gap-3">
+
+
+          {/* Refresh Button */}
+
+          <button
+            onClick={() => fetchDashboard(true)}
+            disabled={refreshing}
+            title="Refresh dashboard"
+            className="
+              flex
+              h-11
+              w-11
+              items-center
+              justify-center
+              rounded-lg
+              border
+              border-[#dce7e0]
+              bg-white
+              text-gray-500
+              shadow-sm
+              transition
+              hover:bg-gray-50
+              hover:text-green-600
+              disabled:cursor-not-allowed
+              disabled:opacity-50
+            "
+          >
+
+            <FaSyncAlt
+              size={15}
+              className={
+                refreshing
+                  ? "animate-spin"
+                  : ""
+              }
+            />
+
+          </button>
+
+
+          {/* New Submission */}
+
+          <button
+            onClick={() =>
+              navigate("/botanist/new-submission")
+            }
+            className="
+              flex
+              items-center
+              gap-2
+              rounded-lg
+              bg-[#13a34a]
+              px-5
+              py-3
+              text-sm
+              font-medium
+              text-white
+              transition
+              hover:bg-[#108b3f]
+            "
+          >
+
+            <FaLeaf size={18} />
+
+            New Submission
+
+          </button>
+
+        </div>
 
       </div>
 
 
-      {/* ================= STAT CARDS ================= */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {/* =====================================================
+          STAT CARDS
+      ===================================================== */}
 
-        {stats.map((stat) => (
+      <div
+        className="
+          mb-6
+          grid
+          grid-cols-1
+          gap-4
+          sm:grid-cols-2
+          xl:grid-cols-4
+        "
+      >
+
+        {statCards.map((stat) => (
+
           <div
             key={stat.title}
             className="
               rounded-xl
-              border border-[#dce7e0]
+              border
+              border-[#dce7e0]
               bg-white
               p-5
               shadow-sm
@@ -167,35 +572,21 @@ const BotanistDashboard = () => {
                   {stat.title}
                 </p>
 
+
                 <h2 className="mt-2 text-3xl font-semibold text-[#062b1b]">
                   {stat.value}
                 </h2>
 
-                {stat.change && (
-                  <div
-                    className={`mt-2 flex items-center gap-1 text-xs ${
-                      stat.positive
-                        ? "text-green-600"
-                        : "text-red-500"
-                    }`}
-                  >
-                    {stat.positive ? (
-                      <FaArrowUp size={14} />
-                    ) : (
-                      <FaArrowDown size={14} />
-                    )}    
-
-
-
-                    {stat.change}
-                  </div>
-                )}
-
               </div>
+
 
               <div
                 className={`
-                  flex h-10 w-10 items-center justify-center
+                  flex
+                  h-10
+                  w-10
+                  items-center
+                  justify-center
                   rounded-lg
                   ${stat.iconBg}
                   ${stat.iconColor}
@@ -207,19 +598,211 @@ const BotanistDashboard = () => {
             </div>
 
           </div>
+
         ))}
 
       </div>
 
 
-      {/* ================= CHART SECTION ================= */}
-      <div className="mb-6 grid grid-cols-1 gap-5 xl:grid-cols-2">
+      {/* =====================================================
+          SECONDARY STATISTICS
+      ===================================================== */}
 
-        {/* Monthly Contribution */}
+      <div
+        className="
+          mb-6
+          grid
+          grid-cols-1
+          gap-4
+          md:grid-cols-3
+        "
+      >
+
+
+        {/* Approval Rate */}
+
         <div
           className="
             rounded-xl
-            border border-[#dce7e0]
+            border
+            border-[#dce7e0]
+            bg-white
+            p-5
+            shadow-sm
+          "
+        >
+
+          <div className="flex items-center justify-between">
+
+            <div>
+
+              <p className="text-xs font-medium tracking-wide text-gray-500">
+                APPROVAL RATE
+              </p>
+
+
+              <h2 className="mt-2 text-3xl font-semibold text-[#062b1b]">
+                {acceptanceRate}%
+              </h2>
+
+            </div>
+
+
+            <div
+              className="
+                flex
+                h-10
+                w-10
+                items-center
+                justify-center
+                rounded-lg
+                bg-green-100
+                text-green-600
+              "
+            >
+              <FaCheckCircle size={20} />
+            </div>
+
+          </div>
+
+
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-gray-100">
+
+            <div
+              className="
+                h-full
+                rounded-full
+                bg-[#13a34a]
+                transition-all
+              "
+              style={{
+                width: `${acceptanceRate}%`,
+              }}
+            />
+
+          </div>
+
+        </div>
+
+
+        {/* AI Statistics */}
+
+        <div
+          className="
+            rounded-xl
+            border
+            border-[#dce7e0]
+            bg-white
+            p-5
+            shadow-sm
+          "
+        >
+
+          <div className="flex items-center justify-between">
+
+            <div>
+
+              <p className="text-xs font-medium tracking-wide text-gray-500">
+                AI-ASSISTED SUBMISSIONS
+              </p>
+
+
+              <h2 className="mt-2 text-3xl font-semibold text-[#062b1b]">
+
+                {Number(
+                  aiStats.aiSubmissions || 0
+                )}
+
+              </h2>
+
+            </div>
+
+
+            <div
+              className="
+                flex
+                h-10
+                w-10
+                items-center
+                justify-center
+                rounded-lg
+                bg-blue-100
+                text-blue-600
+              "
+            >
+              <FaRobot size={20} />
+            </div>
+
+          </div>
+
+
+          <p className="mt-3 text-xs text-gray-500">
+
+            Average confidence:{" "}
+
+            <span className="font-medium text-gray-700">
+
+              {(
+                Number(
+                  aiStats.averageConfidence || 0
+                ) * 100
+              ).toFixed(1)}
+
+              %
+
+            </span>
+
+          </p>
+
+        </div>
+
+
+        {/* Botanist Information */}
+
+        <div
+          className="
+            rounded-xl
+            border
+            border-[#dce7e0]
+            bg-white
+            p-5
+            shadow-sm
+          "
+        >
+
+          <p className="text-xs font-medium tracking-wide text-gray-500">
+            SPECIALISATION
+          </p>
+
+
+          <h2 className="mt-2 text-base font-semibold text-[#062b1b]">
+            {user.specialisation || "Not specified"}
+          </h2>
+
+
+          <p className="mt-2 text-xs text-gray-500">
+            {user.qualification || "Qualification not specified"}
+          </p>
+
+        </div>
+
+      </div>
+
+
+      {/* =====================================================
+          CHARTS
+      ===================================================== */}
+
+      <div className="mb-6 grid grid-cols-1 gap-5 xl:grid-cols-2">
+
+
+        {/* Monthly Contribution */}
+
+        <div
+          className="
+            rounded-xl
+            border
+            border-[#dce7e0]
             bg-white
             p-5
             shadow-sm
@@ -229,20 +812,25 @@ const BotanistDashboard = () => {
           <div className="mb-5 flex items-start justify-between">
 
             <div>
+
               <h2 className="text-base font-medium text-[#062b1b]">
                 Monthly Contribution
               </h2>
 
+
               <p className="mt-1 text-xs text-gray-500">
-                Submissions vs accepted records
+                Submissions vs approved records
               </p>
+
             </div>
+
 
             <span
               className="
                 rounded-full
                 bg-green-100
-                px-3 py-1
+                px-3
+                py-1
                 text-xs
                 font-medium
                 text-green-700
@@ -254,59 +842,101 @@ const BotanistDashboard = () => {
           </div>
 
 
-          {/* Simple bar chart */}
-          <div className="flex h-44 items-end justify-between gap-4 px-3">
+          {monthlyChartData.length === 0 ? (
 
-            {[
-              { month: "Jan", submitted: 4, accepted: 3 },
-              { month: "Feb", submitted: 7, accepted: 5 },
-              { month: "Mar", submitted: 5, accepted: 4 },
-              { month: "Apr", submitted: 9, accepted: 7 },
-              { month: "May", submitted: 12, accepted: 10 },
-              { month: "Jun", submitted: 8, accepted: 6 },
-            ].map((item) => (
+            <div className="flex h-64 items-center justify-center">
 
-              <div
-                key={item.month}
-                className="flex h-full flex-1 flex-col items-center justify-end"
+              <p className="text-sm text-gray-400">
+                No monthly submission data available.
+              </p>
+
+            </div>
+
+          ) : (
+
+            <div className="h-64">
+
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
               >
 
-                <div className="flex h-full items-end gap-1">
+                <BarChart
+                  data={monthlyChartData}
+                  margin={{
+                    top: 10,
+                    right: 10,
+                    left: -20,
+                    bottom: 5,
+                  }}
+                >
 
-                  <div
-                    className="w-3 rounded-t-md bg-[#7ee6a5]"
-                    style={{
-                      height: `${item.submitted * 11}px`,
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                  />
+
+                  <XAxis
+                    dataKey="month"
+                    tick={{
+                      fontSize: 11,
                     }}
                   />
 
-                  <div
-                    className="w-3 rounded-t-md bg-[#13a34a]"
-                    style={{
-                      height: `${item.accepted * 11}px`,
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{
+                      fontSize: 11,
                     }}
                   />
 
-                </div>
+                  <Tooltip />
 
-                <span className="mt-2 text-xs text-gray-500">
-                  {item.month}
-                </span>
+                  <Legend />
 
-              </div>
 
-            ))}
+                  <Bar
+                    dataKey="submitted"
+                    name="Submitted"
+                    fill="#7ee6a5"
+                    radius={[
+                      4,
+                      4,
+                      0,
+                      0,
+                    ]}
+                  />
 
-          </div>
+
+                  <Bar
+                    dataKey="approved"
+                    name="Approved"
+                    fill="#13a34a"
+                    radius={[
+                      4,
+                      4,
+                      0,
+                      0,
+                    ]}
+                  />
+
+                </BarChart>
+
+              </ResponsiveContainer>
+
+            </div>
+
+          )}
 
         </div>
 
 
         {/* Submission Trend */}
+
         <div
           className="
             rounded-xl
-            border border-[#dce7e0]
+            border
+            border-[#dce7e0]
             bg-white
             p-5
             shadow-sm
@@ -319,89 +949,113 @@ const BotanistDashboard = () => {
               Submission Trend
             </h2>
 
+
             <p className="mt-1 text-xs text-gray-500">
-              Weekly activity
+              Weekly submission activity
             </p>
 
           </div>
 
 
-          {/* Simple line chart */}
-          <div className="relative h-44">
+          {weeklyChartData.length === 0 ? (
 
-            {/* Horizontal grid lines */}
-            <div className="absolute inset-0 flex flex-col justify-between">
+            <div className="flex h-64 items-center justify-center">
 
-              {[12, 9, 6, 3, 0].map((value) => (
-                <div
-                  key={value}
-                  className="flex items-center"
+              <p className="text-sm text-gray-400">
+                No weekly submission data available.
+              </p>
+
+            </div>
+
+          ) : (
+
+            <div className="h-64">
+
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+              >
+
+                <LineChart
+                  data={weeklyChartData}
+                  margin={{
+                    top: 10,
+                    right: 10,
+                    left: -20,
+                    bottom: 5,
+                  }}
                 >
-                  <span className="w-7 text-xs text-gray-400">
-                    {value}
-                  </span>
 
-                  <div className="h-px flex-1 border-t border-dashed border-gray-200" />
-                </div>
-              ))}
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                  />
 
-            </div>
+                  <XAxis
+                    dataKey="week"
+                    tick={{
+                      fontSize: 11,
+                    }}
+                  />
+
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{
+                      fontSize: 11,
+                    }}
+                  />
+
+                  <Tooltip />
 
 
-            {/* Approximate trend */}
-            <svg
-              viewBox="0 0 500 170"
-              className="absolute left-7 top-0 h-full w-[calc(100%-28px)]"
-              preserveAspectRatio="none"
-            >
+                  <Line
+                    type="monotone"
+                    dataKey="submissions"
+                    name="Submissions"
+                    stroke="#13a34a"
+                    strokeWidth={3}
+                    dot={{
+                      r: 4,
+                    }}
+                    activeDot={{
+                      r: 6,
+                    }}
+                  />
 
-              <path
-                d="
-                  M0 140
-                  C45 100, 70 80, 110 105
-                  C145 130, 160 120, 190 70
-                  C220 30, 260 30, 290 70
-                  C320 110, 340 110, 365 50
-                  C395 5, 425 25, 500 80
-                "
-                fill="none"
-                stroke="#13a34a"
-                strokeWidth="3"
-              />
+                </LineChart>
 
-            </svg>
-
-            <div className="absolute bottom-0 left-7 right-0 flex justify-between">
-
-              {["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8"].map(
-                (week) => (
-                  <span
-                    key={week}
-                    className="text-xs text-gray-500"
-                  >
-                    {week}
-                  </span>
-                )
-              )}
+              </ResponsiveContainer>
 
             </div>
 
-          </div>
+          )}
 
         </div>
 
       </div>
 
 
-      {/* ================= BOTTOM SECTION ================= */}
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[2fr_1fr]">
+      {/* =====================================================
+          BOTTOM SECTION
+      ===================================================== */}
+
+      <div
+        className="
+          grid
+          grid-cols-1
+          gap-5
+          xl:grid-cols-[2fr_1fr]
+        "
+      >
+
 
         {/* Recent Activity */}
+
         <div
           className="
             overflow-hidden
             rounded-xl
-            border border-[#dce7e0]
+            border
+            border-[#dce7e0]
             bg-white
             shadow-sm
           "
@@ -409,32 +1063,54 @@ const BotanistDashboard = () => {
 
           <div
             className="
-              flex items-center justify-between
-              border-b border-[#e5ebe7]
-              px-5 py-4
+              flex
+              items-center
+              justify-between
+              border-b
+              border-[#e5ebe7]
+              px-5
+              py-4
             "
           >
 
-            <h2 className="font-medium text-[#062b1b]">
-              Recent Activity
-            </h2>
+            <div>
+
+              <h2 className="font-medium text-[#062b1b]">
+                Recent Activity
+              </h2>
+
+
+              <p className="mt-1 text-xs text-gray-400">
+                Your latest specimen submissions
+              </p>
+
+            </div>
+
 
             <button
+              onClick={() =>
+                navigate("/botanist/submissions")
+              }
               className="
-                flex items-center gap-1
-                text-xs font-medium
+                flex
+                items-center
+                gap-1
+                text-xs
+                font-medium
                 text-green-600
                 hover:text-green-700
               "
             >
+
               View all
+
               <FaArrowRight size={14} />
+
             </button>
 
           </div>
 
 
-          {/* Table */}
           <div className="overflow-x-auto">
 
             <table className="w-full">
@@ -463,44 +1139,121 @@ const BotanistDashboard = () => {
 
               </thead>
 
+
               <tbody>
 
-                {recentActivity.map((item) => (
+                {recentActivity.length === 0 ? (
 
-                  <tr
-                    key={item.id}
-                    className="border-b border-[#edf1ee] last:border-b-0"
-                  >
+                  <tr>
 
-                    <td className="px-5 py-4 text-xs text-gray-500">
-                      {item.id}
-                    </td>
+                    <td
+                      colSpan="4"
+                      className="px-5 py-10 text-center"
+                    >
 
-                    <td className="px-5 py-4">
+                      <FaLeaf
+                        size={25}
+                        className="mx-auto mb-3 text-gray-300"
+                      />
 
-                      <p className="text-sm font-medium text-[#062b1b]">
-                        {item.plant}
+
+                      <p className="text-sm text-gray-500">
+                        No submissions yet.
                       </p>
 
-                      <p className="text-xs text-gray-500">
-                        {item.commonName}
-                      </p>
 
-                    </td>
-
-                    <td className="px-5 py-4 text-xs text-gray-500">
-                      {item.date}
-                    </td>
-
-                    <td className="px-5 py-4">
-
-                      <StatusBadge status={item.status} />
+                      <button
+                        onClick={() =>
+                          navigate(
+                            "/botanist/new-submission"
+                          )
+                        }
+                        className="
+                          mt-2
+                          text-xs
+                          font-medium
+                          text-green-600
+                          hover:text-green-700
+                        "
+                      >
+                        Create your first submission
+                      </button>
 
                     </td>
 
                   </tr>
 
-                ))}
+                ) : (
+
+                  recentActivity.map((item) => (
+
+                    <tr
+                      key={item.id}
+                      className="
+                        border-b
+                        border-[#edf1ee]
+                        last:border-b-0
+                        transition
+                        hover:bg-[#f8fbf9]
+                      "
+                    >
+
+                      <td className="px-5 py-4 text-xs text-gray-500">
+
+                        SUB-
+
+                        {String(item.id).padStart(
+                          4,
+                          "0"
+                        )}
+
+                      </td>
+
+
+                      <td className="px-5 py-4">
+
+                        <p className="text-sm font-medium text-[#062b1b]">
+
+                          {item.name ||
+                            "Unnamed specimen"}
+
+                        </p>
+
+
+                        <p className="text-xs text-gray-500">
+
+                          {item.species ||
+                            item.family ||
+                            "Species not specified"}
+
+                        </p>
+
+                      </td>
+
+
+                      <td className="px-5 py-4 text-xs text-gray-500">
+
+                        {formatDate(
+                          item.collection_date ||
+                            item.created_at
+                        )}
+
+                      </td>
+
+
+                      <td className="px-5 py-4">
+
+                        <StatusBadge
+                          status={item.status}
+                        />
+
+                      </td>
+
+                    </tr>
+
+                  ))
+
+                )}
 
               </tbody>
 
@@ -511,11 +1264,13 @@ const BotanistDashboard = () => {
         </div>
 
 
-        {/* Notifications */}
+        {/* Dashboard Summary */}
+
         <div
           className="
             rounded-xl
-            border border-[#dce7e0]
+            border
+            border-[#dce7e0]
             bg-white
             shadow-sm
           "
@@ -523,15 +1278,29 @@ const BotanistDashboard = () => {
 
           <div
             className="
-              flex items-center justify-between
-              border-b border-[#e5ebe7]
-              px-5 py-4
+              flex
+              items-center
+              justify-between
+              border-b
+              border-[#e5ebe7]
+              px-5
+              py-4
             "
           >
 
-            <h2 className="font-medium text-[#062b1b]">
-              Notifications
-            </h2>
+            <div>
+
+              <h2 className="font-medium text-[#062b1b]">
+                Dashboard Summary
+              </h2>
+
+
+              <p className="mt-1 text-xs text-gray-400">
+                Current account overview
+              </p>
+
+            </div>
+
 
             <FaBell
               size={17}
@@ -541,43 +1310,62 @@ const BotanistDashboard = () => {
           </div>
 
 
-          <div className="space-y-3 p-4">
+          <div className="space-y-4 p-5">
 
-            {notifications.map((notification, index) => (
 
-              <div
-                key={index}
-                className="flex gap-3 rounded-lg bg-[#f1f5f2] p-4"
-              >
+            <SummaryRow
+              label="Total submissions"
+              value={stats.totalSubmissions || 0}
+            />
 
-                <div
-                  className={`
-                    mt-1 h-2 w-2 shrink-0 rounded-full
-                    ${
-                      notification.type === "success"
-                        ? "bg-green-600"
-                        : notification.type === "error"
-                        ? "bg-red-500"
-                        : "bg-blue-500"
-                    }
-                  `}
-                />
 
-                <div>
+            <SummaryRow
+              label="Approved"
+              value={stats.approved || 0}
+              valueClass="text-green-600"
+            />
 
-                  <p className="text-xs leading-5 text-gray-700">
-                    {notification.message}
-                  </p>
 
-                  <p className="mt-1 text-[11px] text-gray-400">
-                    {notification.time}
-                  </p>
+            <SummaryRow
+              label="Pending review"
+              value={stats.pending || 0}
+              valueClass="text-yellow-600"
+            />
 
-                </div>
 
-              </div>
+            <SummaryRow
+              label="Rejected"
+              value={stats.rejected || 0}
+              valueClass="text-red-500"
+            />
 
-            ))}
+
+            <div className="my-4 border-t border-[#e5ebe7]" />
+
+
+            <SummaryRow
+              label="Approval rate"
+              value={`${acceptanceRate}%`}
+              valueClass="text-green-600"
+            />
+
+
+            <SummaryRow
+              label="AI-assisted"
+              value={
+                aiStats.aiSubmissions || 0
+              }
+            />
+
+
+            {user.experienceYears && (
+
+              <SummaryRow
+                label="Experience"
+                value={`${user.experienceYears} years`}
+              />
+
+            )}
 
           </div>
 
@@ -590,30 +1378,91 @@ const BotanistDashboard = () => {
 };
 
 
-/* ================= STATUS BADGE ================= */
+// ============================================================
+// SUMMARY ROW
+// ============================================================
+
+const SummaryRow = ({
+  label,
+  value,
+  valueClass = "text-[#062b1b]",
+}) => {
+
+  return (
+    <div className="flex items-center justify-between">
+
+      <span className="text-xs text-gray-500">
+        {label}
+      </span>
+
+
+      <span
+        className={`text-sm font-semibold ${valueClass}`}
+      >
+        {value}
+      </span>
+
+    </div>
+  );
+};
+
+
+// ============================================================
+// STATUS BADGE
+// ============================================================
 
 const StatusBadge = ({ status }) => {
 
+  const normalizedStatus =
+    String(status || "").toLowerCase();
+
+
   const styles = {
-    Approved: "bg-green-100 text-green-700",
-    Pending: "bg-yellow-100 text-yellow-700",
-    Rejected: "bg-red-100 text-red-600",
-    Revision: "bg-blue-100 text-blue-600",
+    approved:
+      "bg-green-100 text-green-700",
+
+    pending:
+      "bg-yellow-100 text-yellow-700",
+
+    rejected:
+      "bg-red-100 text-red-600",
+
+    draft:
+      "bg-gray-100 text-gray-600",
   };
+
+
+  const labels = {
+    approved: "Approved",
+    pending: "Pending",
+    rejected: "Rejected",
+    draft: "Draft",
+  };
+
 
   return (
     <span
       className={`
         inline-flex
         rounded-full
-        px-3 py-1
-        text-xs font-medium
-        ${styles[status] || "bg-gray-100 text-gray-600"}
+        px-3
+        py-1
+        text-xs
+        font-medium
+        ${
+          styles[normalizedStatus] ||
+          "bg-gray-100 text-gray-600"
+        }
       `}
     >
-      {status}
+
+      {labels[normalizedStatus] ||
+        status ||
+        "Unknown"}
+
     </span>
   );
 };
+
 
 export default BotanistDashboard;

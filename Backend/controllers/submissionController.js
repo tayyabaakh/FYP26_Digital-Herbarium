@@ -1059,9 +1059,10 @@ const approveSubmission = async (req, res) => {
             });
         }
 
-        // 2. Updated INSERT statement using exact column names from herbarium_data
+        // 2. Updated INSERT statement mapping botanist_submissions.id -> specimen_id_gh_number
         const insertHerbariumQuery = `
             INSERT INTO herbarium_data (
+                specimen_id_gh_number,
                 name,
                 family,
                 species,
@@ -1077,10 +1078,11 @@ const approveSubmission = async (req, res) => {
                 latitude,
                 longitude,
                 image_url
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const herbariumValues = [
+            submission.id ? String(submission.id) : null, // Mapped to specimen_id_gh_number
             submission.name || null,
             submission.family || null,
             submission.species || null,
@@ -1125,7 +1127,8 @@ const approveSubmission = async (req, res) => {
             success: false,
             message: error.sqlMessage || error.message || "Failed to approve submission."
         });
-    } finally {
+    } 
+    finally {
         if (connection) connection.release();
     }
 };

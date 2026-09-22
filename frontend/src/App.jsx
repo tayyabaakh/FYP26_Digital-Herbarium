@@ -43,6 +43,7 @@ import Dashboard from "./components/screens/admin/Dashboard";
 import Applications from "./components/screens/admin/Applications";
 import UserProfile from "./components/screens/profile/userProfile";
 import VerificationCenter from "./components/screens/admin/Verification";
+import HerbariumRecords from "./components/screens/admin/Herbarium_data";
 
 // ---------------------------------------------------
 // Session Restore
@@ -101,9 +102,9 @@ const AppRoutes = () => {
           <Route path="application" element={<Applications />} />
           <Route path="verification" element={<VerificationCenter />} />
 
-          {/* <Route path="herbarium-records" element={<HerbariumDatabase />} /> */}
+          <Route path="herbarium-records" element={<HerbariumRecords />} />
           {/* <Route path="settings" element={<AdminSettings />} /> */}
-          {/* <Route path="profile" element={<AdminProfile />} /> */}
+          <Route path="profile" element={<UserProfile />} />
         </Route>
 
         {/* --------------------------------------------------- */}

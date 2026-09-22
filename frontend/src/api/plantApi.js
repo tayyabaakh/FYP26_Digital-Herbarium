@@ -17,3 +17,10 @@ export const plantdetailService = {
     getAllPlants: fetchPlants,
     getPlantsById: fetchPlantById
 };
+
+// 2. Herbarium Database API Endpoints
+export const fetchHerbariumRecords = async (params = {}) => {
+    const response = await axiosInstance.get("/herbarium", { params });
+    console.log("Herbarium API Response:", response.data);
+    return response.data;
+};
