@@ -28,6 +28,15 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const pool = require('./config/db');
+
+pool.query('SELECT 1')
+  .then(() => {
+    console.log('✅ Database connection successful');
+  })
+  .catch((error) => {
+    console.error('❌ Database connection failed:', error);
+  });
 
 dotenv.config();
 const path = require('path');

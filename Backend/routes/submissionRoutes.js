@@ -37,10 +37,11 @@ const {
 } = require('../controllers/submissionController');
 
 const {protect} = require("../Middlewares/authMiddleware");
+const upload = require("../Middlewares/uploadMiddleware");
 
-router.post('/', protect, createSubmission);
+router.post('/', protect, upload.single('image'),createSubmission);
 
-router.post('/draft', protect, saveDraft);
+router.post('/draft', protect, upload.single('image'), saveDraft);
 
 
 module.exports = router;

@@ -193,7 +193,7 @@
   import LoginPage from "./components/screens/Login/Login";
   import BotanistApply from "./components/screens/Botanist/BotanistApply";
   import BotanistApplicationReview from "./components/screens/admin/Dashboard";
-  import BotanistNewSubmission from "./components/screens/Botanist/BotanistNewSubmission"; // <--- Add your BotanistNewSubmission import
+  import BotanistNewSubmission from "./components/screens/Botanist/BotanistNewSubmission/BotanistNewSubmission"; // <--- Add your BotanistNewSubmission import
 
   // Botanist Sub-Screens
   import BotanistProfile from "./components/screens/Botanist/BotanistProfile";

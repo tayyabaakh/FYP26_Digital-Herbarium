@@ -21,12 +21,12 @@ export const applyAsBotanistApi = async (formData) => {
   return response.data;
 };
 
-export const submissionApi = async (submissionData) => {
-  const response = await axiosInstance.post('/submissions', submissionData);
+export const submissionApi = async (formData) => {
+  const response = await axiosInstance.post('/submissions', formData);
   return response.data;
 }
 
-export const draftSubmissionApi = async (submissionData) => {
-  const response = await axiosInstance.post('/submissions/draft', submissionData);
+export const draftSubmissionApi = async (formData) => {
+  const response = await axiosInstance.post('/submissions/draft', formData);
   return response.data;
 }
