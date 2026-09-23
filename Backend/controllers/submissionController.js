@@ -1,525 +1,36 @@
 
-// // const db = require("../config/db");
-// // const fs = require("fs");
-
-
-// // // =====================================================
-// // // CREATE SUBMISSION
-// // // =====================================================
-
-// // exports.createSubmission = async (req, res) => {
-
-// //     const connection = await db.getConnection();
-
-// //     try {
-
-// //         const {
-// //             scientificName,
-// //             commonName,
-// //             family,
-// //             genus,
-// //             species,
-// //             province,
-// //             habitat,
-// //             collectorName,
-// //             collectionDate,
-// //             latitude,
-// //             longitude,
-// //             description,
-// //             status
-// //         } = req.body;
-
-
-// //         // ---------------------------------------------
-// //         // Validate user
-// //         // ---------------------------------------------
-
-// //         if (!req.user) {
-
-// //             return res.status(401).json({
-// //                 success: false,
-// //                 message: "Authentication required."
-// //             });
-
-// //         }
-
-
-// //         // ---------------------------------------------
-// //         // Only botanists
-// //         // ---------------------------------------------
-
-// //         if (req.user.role !== "botanist") {
-
-// //             return res.status(403).json({
-// //                 success: false,
-// //                 message: "Only botanists can create submissions."
-// //             });
-
-// //         }
-
-
-// //         // ---------------------------------------------
-// //         // Determine status
-// //         // ---------------------------------------------
-
-// //         const submissionStatus =
-// //             status === "pending"
-// //                 ? "pending"
-// //                 : "draft";
-
-
-// //         // ---------------------------------------------
-// //         // Start transaction
-// //         // ---------------------------------------------
-
-// //         await connection.beginTransaction();
-
-
-// //         // ---------------------------------------------
-// //         // Insert submission
-// //         // ---------------------------------------------
-
-// //         const [result] = await connection.query(
-
-// //             `
-// //             INSERT INTO botanist_submissions
-// //             (
-// //                 botanist_id,
-// //                 scientific_name,
-// //                 common_name,
-// //                 family,
-// //                 genus,
-// //                 species,
-// //                 province,
-// //                 habitat,
-// //                 collector_name,
-// //                 collection_date,
-// //                 latitude,
-// //                 longitude,
-// //                 description,
-// //                 status
-// //             )
-// //             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-// //             `,
-
-// //             [
-// //                 req.user.userId,
-// //                 scientificName || null,
-// //                 commonName || null,
-// //                 family || null,
-// //                 genus || null,
-// //                 species || null,
-// //                 province || null,
-// //                 habitat || null,
-// //                 collectorName || null,
-// //                 collectionDate || null,
-// //                 latitude || null,
-// //                 longitude || null,
-// //                 description || null,
-// //                 submissionStatus
-// //             ]
-
-// //         );
-
-
-// //         const submissionId = result.insertId;
-
-
-// //         // ---------------------------------------------
-// //         // Save uploaded images
-// //         // ---------------------------------------------
-
-// //         if (req.files && req.files.length > 0) {
-
-// //             for (const file of req.files) {
-
-// //                 await connection.query(
-
-// //                     `
-// //                     INSERT INTO submission_images
-// //                     (
-// //                         submission_id,
-// //                         file_name,
-// //                         file_path,
-// //                         mime_type,
-// //                         file_size
-// //                     )
-// //                     VALUES (?, ?, ?, ?, ?)
-// //                     `,
-
-// //                     [
-// //                         submissionId,
-// //                         file.filename,
-// //                         `/uploads/submissions/${file.filename}`,
-// //                         file.mimetype,
-// //                         file.size
-// //                     ]
-
-// //                 );
-
-// //             }
-
-// //         }
-
-
-// //         // ---------------------------------------------
-// //         // Commit transaction
-// //         // ---------------------------------------------
-
-// //         await connection.commit();
-
-
-// //         return res.status(201).json({
-
-// //             success: true,
-
-// //             message:
-// //                 submissionStatus === "pending"
-// //                     ? "Submission sent for review."
-// //                     : "Submission saved as draft.",
-
-// //             data: {
-// //                 submissionId,
-// //                 status: submissionStatus
-// //             }
-
-// //         });
-
-// //     } catch (error) {
-
-// //         await connection.rollback();
-
-// //         console.error(
-// //             "Create Submission Error:",
-// //             error
-// //         );
-
-// //         return res.status(500).json({
-// //             success: false,
-// //             message: "Failed to create submission."
-// //         });
-
-// //     } finally {
-
-// //         connection.release();
-
-// //     }
-
-// // };
-
-
-
-// const db = require('../config/db');
-// const cloudinary = require('../config/cloudinary')
-
-// const createSubmission = async (req, res) => {
-//     try {
-//         const {
-//             name,
-//             family,
-//             species,
-//             location_code,
-//             collection_no,
-//             habitat,
-//             habit,
-//             flower_color,
-//             collector_name,
-//             collection_group_members,
-//             collection_date,
-//             locality,
-//             latitude,
-//             longitude
-//         } = req.body;
-
-//         let imageUrl = null;
-
-//                 if (req.file) {
-
-//             const result = await new Promise((resolve, reject) => {
-
-//                 const uploadStream =
-//                     cloudinary.uploader.upload_stream(
-//                         {
-//                             folder: "flora-digitalis/specimens",
-//                             resource_type: "image",
-//                         },
-//                         (error, result) => {
-//                             if (error) {
-//                                 reject(error);
-//                             } else {
-//                                 resolve(result);
-//                             }
-//                         }
-//                     );
-
-//                 uploadStream.end(req.file.buffer);
-//             });
-
-//             imageUrl = result.secure_url;
-//         }
-
-//         // Database insertion comes here
-
-   
-
-
-
-
-
-
-//         /*
-//          * IMPORTANT:
-//          * botanist_id should come from the authenticated user,
-//          * not from req.body.
-//          */
-//         const botanist_id = req.user.userId;
-
-        
-//         if (!req.user) {
-
-//             return res.status(401).json({
-//                 success: false,
-//                 message: "Authentication required."
-//             });
-
-//         }
-
-
-//         // ---------------------------------------------
-//         // Only botanists
-//         // ---------------------------------------------
-
-//         if (req.user.role !== "botanist") {
-
-//             return res.status(403).json({
-//                 success: false,
-//                 message: "Only botanists can create submissions."
-//             });
-
-//         }
-
-
-//         // Required fields
-//         if (!name) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: 'Plant name is required'
-//             });
-//         }
-
-//         if (!family) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: 'Family is required'
-//             });
-//         }
-
-//         if (!species) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: 'Species is required'
-//             });
-//         }
-
-//         const query = `
-//             INSERT INTO botanist_submissions
-//             (
-//                 botanist_id,
-//                 name,
-//                 family,
-//                 species,
-//                 location_code,
-//                 collection_no,
-//                 habitat,
-//                 habit,
-//                 flower_color,
-//                 collector_name,
-//                 collection_group_members,
-//                 collection_date,
-//                 locality,
-//                 latitude,
-//                 longitude,
-//                 ai_identified,
-//                 ai_confidence,
-//                 image_url,
-//                 status
-//             )
-//             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?)
-//         `;
-
-//         const values = [
-//             botanist_id,
-//             name,
-//             family,
-//             species,
-//             location_code || null,
-//             collection_no || null,
-//             habitat || null,
-//             habit || null,
-//             flower_color || null,
-//             collector_name || null,
-//             collection_group_members || null,
-//             collection_date || null,
-//             locality || null,
-//             latitude || null,
-//             longitude || null,
-
-//             // AI fields
-//             false,
-//             null,
-
-//             // New submissions start as pending
-//             'pending'
-//         ];
-
-//         const [result] = await db.query(query, values);
-
-//         return res.status(201).json({
-//             success: true,
-//             message: 'Botanist submission created successfully',
-//             submissionId: result.insertId
-//         });
-
-//     } catch (error) {
-//         console.error('Create Submission Error:', error);
-
-//         return res.status(500).json({
-//             success: false,
-//             message: 'Failed to create submission',
-//             error: error.message
-//         });
-//     }
-// };
-
-// const saveDraft = async (req, res) => {
-//     try {
-
-//         const {
-//             name,
-//             family,
-//             species,
-//             location_code,
-//             collection_no,
-//             habitat,
-//             habit,
-//             flower_color,
-//             collector_name,
-//             collection_group_members,
-//             collection_date,
-//             locality,
-//             latitude,
-//             longitude
-//         } = req.body;
-
-//         // Get authenticated botanist
-//         const botanist_id = req.user.userId;
-
-//         const query = `
-//             INSERT INTO botanist_submissions
-//             (
-//                 botanist_id,
-//                 name,
-//                 family,
-//                 species,
-//                 location_code,
-//                 collection_no,
-//                 habitat,
-//                 habit,
-//                 flower_color,
-//                 collector_name,
-//                 collection_group_members,
-//                 collection_date,
-//                 locality,
-//                 latitude,
-//                 longitude,
-//                 ai_identified,
-//                 ai_confidence,
-//                 status
-//             )
-//             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-//         `;
-
-//         const values = [
-//             botanist_id,
-//             name || null,
-//             family || null,
-//             species || null,
-//             location_code || null,
-//             collection_no || null,
-//             habitat || null,
-//             habit || null,
-//             flower_color || null,
-//             collector_name || null,
-//             collection_group_members || null,
-//             collection_date || null,
-//             locality || null,
-//             latitude || null,
-//             longitude || null,
-
-//             false,
-//             null,
-
-//             'draft'
-//         ];
-
-//         const [result] = await db.query(query, values);
-
-//         return res.status(201).json({
-//             success: true,
-//             message: 'Draft saved successfully',
-//             draftId: result.insertId
-//         });
-
-//     } catch (error) {
-
-//         console.error('Save Draft Error:', error);
-
-//         return res.status(500).json({
-//             success: false,
-//             message: 'Failed to save draft',
-//             error: error.message
-//         });
-//     }
-// };
-
-// module.exports = {
-//     createSubmission,
-//     saveDraft
-// };
-
-
-
-
-
-
-
-
 const db = require('../config/db');
 const cloudinary = require('../config/cloudinary');
 
 
+const parseTaxonomyName = (inputName) => {
+  if (!inputName) return { genus: null, species: null };
+
+  const clean = inputName.trim();
+  const parts = clean.split(/\s+/);
+
+  if (parts.length === 1) {
+    return { genus: clean, species: null };
+  }
+
+  // The last word or second word is the species epithet, preceding part is genus
+  const species = parts[parts.length - 1];
+  const genus = parts.slice(0, parts.length - 1).join(" ");
+
+  return { genus, species };
+};
 // =====================================================
 // CREATE SUBMISSION
 // =====================================================
 
 const createSubmission = async (req, res) => {
     try {
-
-        // ---------------------------------------------
-        // Authentication check
-        // ---------------------------------------------
-
         if (!req.user) {
             return res.status(401).json({
                 success: false,
                 message: "Authentication required."
             });
         }
-
-
-        // ---------------------------------------------
-        // Only botanists can submit
-        // ---------------------------------------------
 
         if (req.user.role !== "botanist") {
             return res.status(403).json({
@@ -528,22 +39,11 @@ const createSubmission = async (req, res) => {
             });
         }
 
-
-        // ---------------------------------------------
-        // Get authenticated botanist ID
-        // ---------------------------------------------
-
         const botanist_id = req.user.userId;
 
-
-        // ---------------------------------------------
-        // Get form data
-        // ---------------------------------------------
-
         const {
-            name,
+            name, // Input string e.g., "Halogeton glomeratus"
             family,
-            species,
             location_code,
             collection_no,
             habitat,
@@ -557,15 +57,11 @@ const createSubmission = async (req, res) => {
             longitude
         } = req.body;
 
-
-        // ---------------------------------------------
-        // Required fields
-        // ---------------------------------------------
-
+        // Validation
         if (!name) {
             return res.status(400).json({
                 success: false,
-                message: 'Plant name is required'
+                message: 'Plant scientific name is required'
             });
         }
 
@@ -576,54 +72,29 @@ const createSubmission = async (req, res) => {
             });
         }
 
-        if (!species) {
-            return res.status(400).json({
-                success: false,
-                message: 'Species is required'
-            });
-        }
+        // Parse Genus (for 'name' column) and Specific Epithet (for 'species' column)
+        const { genus, species } = parseTaxonomyName(name);
 
-
-        // ---------------------------------------------
         // Upload image to Cloudinary
-        // ---------------------------------------------
-
         let imageUrl = null;
-        console.log("REQ FILE:", req.file);
-        console.log("REQ BODY:", req.body);
-
         if (req.file) {
-
             const result = await new Promise((resolve, reject) => {
-
-                const uploadStream =
-                    cloudinary.uploader.upload_stream(
-                        {
-                            folder: "flora-digitalis/specimens",
-                            resource_type: "image"
-                        },
-                        (error, result) => {
-
-                            if (error) {
-                                reject(error);
-                            } else {
-                                resolve(result);
-                            }
-
-                        }
-                    );
-
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    {
+                        folder: "flora-digitalis/specimens",
+                        resource_type: "image"
+                    },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result);
+                    }
+                );
                 uploadStream.end(req.file.buffer);
             });
-
             imageUrl = result.secure_url;
         }
 
-
-        // ---------------------------------------------
-        // Insert submission into TiDB
-        // ---------------------------------------------
-
+        // Insert submission into DB
         const query = `
             INSERT INTO botanist_submissions
             (
@@ -650,12 +121,11 @@ const createSubmission = async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-
         const values = [
             botanist_id,
-            name,
-            family,
-            species,
+            genus,    // Saved as Genus only
+            family.trim(),
+            species,  // Saved as Species epithet
             location_code || null,
             collection_no || null,
             habitat || null,
@@ -667,25 +137,13 @@ const createSubmission = async (req, res) => {
             locality || null,
             latitude || null,
             longitude || null,
-
-            // AI fields
             false,
             null,
-
-            // Cloudinary image URL
             imageUrl,
-
-            // New submission status
             'pending'
         ];
 
-
         const [result] = await db.query(query, values);
-
-
-        // ---------------------------------------------
-        // Response
-        // ---------------------------------------------
 
         return res.status(201).json({
             success: true,
@@ -694,11 +152,8 @@ const createSubmission = async (req, res) => {
             imageUrl: imageUrl
         });
 
-
     } catch (error) {
-
         console.error('Create Submission Error:', error);
-
         return res.status(500).json({
             success: false,
             message: 'Failed to create submission',
@@ -706,7 +161,6 @@ const createSubmission = async (req, res) => {
         });
     }
 };
-
 
 
 // =====================================================
@@ -754,7 +208,6 @@ const saveDraft = async (req, res) => {
         const {
             name,
             family,
-            species,
             location_code,
             collection_no,
             habitat,
@@ -768,7 +221,8 @@ const saveDraft = async (req, res) => {
             longitude
         } = req.body;
 
-
+// Parse species if name exists
+        const parsedSpecies = parseSpeciesFromName(name);
         // ---------------------------------------------
         // Upload image to Cloudinary if provided
         // ---------------------------------------------
@@ -838,7 +292,7 @@ const saveDraft = async (req, res) => {
             botanist_id,
             name || null,
             family || null,
-            species || null,
+            parsedSpecies,
             location_code || null,
             collection_no || null,
             habitat || null,

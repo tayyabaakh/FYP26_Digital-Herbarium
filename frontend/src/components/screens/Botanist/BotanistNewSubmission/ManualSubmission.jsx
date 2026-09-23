@@ -11,7 +11,7 @@ import FormSectionTitle from "../../../commons/Form/FormSelectionTitle";
 const INITIAL_FORM_DATA = {
   name: "",
   family: "",
-  species: "",
+  // species: "",
   location_code: "",
   collection_no: "",
   
@@ -44,50 +44,18 @@ const ManualSubmission = () => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }));
+    }
+  
+  ));
   };
 
-  // ==========================================
-  // CREATE PAYLOAD
-  // ==========================================
 
-//   const createPayload = () => {
-//     return {
-//       name: formData.name.trim(),
-//       family: formData.family.trim(),
-//       species: formData.species.trim(),
-
-//       location_code: formData.location_code.trim(),
-//       collection_no: formData.collection_no.trim(),
-
-//       habitat: formData.habitat.trim(),
-//       habit: formData.habit.trim(),
-//       flower_color: formData.flower_color.trim(),
-
-//       collector_name: formData.collector_name.trim(),
-//       collection_group_members:
-//         formData.collection_group_members.trim(),
-
-//       collection_date: formData.collection_date || null,
-//       locality: formData.locality.trim(),
-
-//       latitude:
-//         formData.latitude === ""
-//           ? null
-//           : Number(formData.latitude),
-
-//       longitude:
-//         formData.longitude === ""
-//           ? null
-//           : Number(formData.longitude),
-//     };
-//   };
 const createFormData = () => {
     const data = new FormData();
 
     data.append("name", formData.name.trim());
     data.append("family", formData.family.trim());
-    data.append("species", formData.species.trim());
+    // data.append("species", formData.species.trim());
 
     data.append(
         "location_code",
@@ -283,14 +251,14 @@ const handleImageChange = (e) => {
             required
           />
 
-          <FormInput
+          {/* <FormInput
             label="Species"
             name="species"
             value={formData.species}
             onChange={handleChange}
             placeholder="e.g. capillus-veneris"
             required
-          />
+          /> */}
 
           <FormSelect
             label="Family"

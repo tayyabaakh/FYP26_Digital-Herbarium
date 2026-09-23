@@ -237,14 +237,14 @@ const AISubmission = () => {
             required
           />
 
-          <FormInput
+          {/* <FormInput
             label="Species"
             name="species"
             value={formData.species}
             onChange={handleChange}
             placeholder="e.g. capillus-veneris"
             required
-          />
+          /> */}
 
           <FormSelect
             label="Family"
