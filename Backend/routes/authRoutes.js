@@ -1,22 +1,4 @@
-/**
- * Flora-Digitalis Pakistan
- * ─────────────────────────────────────────────────────────
- * Auth Routes
- *
- * Mounted at: /api/auth
- *
- * Public:
- *   POST /api/auth/apply    → Submit botanist application
- *   POST /api/auth/login    → Login (admin + approved botanists)
- *
- * Private:
- *   GET  /api/auth/me       → Get own profile (JWT required)
- *
- * Note:
- *   authMiddleware is imported but the protect function
- *   will be wired in Phase 3 once the middleware file exists.
- *   For now /me is marked but not yet protected.
- */
+
 
 const express        = require('express');
 const router         = express.Router();

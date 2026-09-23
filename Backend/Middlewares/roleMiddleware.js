@@ -1,23 +1,3 @@
-/**
- * Flora-Digitalis Pakistan
- * ─────────────────────────────────────────────────────────
- * Role Middleware
- *
- * Purpose:
- *   Runs AFTER protect middleware.
- *   Gates routes by role — only allows specified roles through.
- *   Rejects everyone else with 403 Forbidden.
- *
- * Usage:
- *   const { protect }        = require('../middleware/authMiddleware');
- *   const { authorizeRoles } = require('../middleware/roleMiddleware');
- *
- *   // Admin only:
- *   router.get('/dashboard', protect, authorizeRoles('admin'), handler);
- *
- *   // Botanist or Admin:
- *   router.post('/plants', protect, authorizeRoles('botanist', 'admin'), handler);
- */
 
 // ─────────────────────────────────────────────────────────────────────────────
 // authorizeRoles — factory function that returns a middleware

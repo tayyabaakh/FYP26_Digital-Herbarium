@@ -1,20 +1,3 @@
-/**
- * Flora-Digitalis Pakistan
- * ─────────────────────────────────────────────────────────
- * Auth Middleware
- *
- * Purpose:
- *   Verifies the JWT token on every protected route.
- *   Attaches decoded { userId, role } to req.user so
- *   controllers and role middleware can use it downstream.
- *
- * Usage:
- *   const { protect } = require('../middleware/authMiddleware');
- *   router.get('/me', protect, getMe);
- *
- * Token Format Expected:
- *   Authorization: Bearer <token>
- */
 
 const jwt  = require('jsonwebtoken');
 const pool = require('../config/db');

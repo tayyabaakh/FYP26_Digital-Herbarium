@@ -8,7 +8,7 @@ const {
 
 const {
     protect
-} = require("../middlewares/authMiddleware");
+} = require("../Middlewares/authMiddleware");
 
 
 /**
