@@ -26,6 +26,7 @@ const {
 } = require('../controllers/adminController');
 const { protect } = require('../Middlewares/authMiddleware');
 const { authorizeRoles } = require('../Middlewares/roleMiddleware');
+const { getDashboardStats } = require('../controllers/adminDashboardController');
 
 // Every route below gets both middleware applied
 const adminOnly = [protect, authorizeRoles('admin')];
@@ -56,4 +57,7 @@ router.put('/users/:id/deactivate', ...adminOnly, deactivateUser);
 // PUT  /api/admin/users/:id/activate           → reactivate a user
 router.put('/users/:id/activate', ...adminOnly, activateUser);
 
+
+
+router.get('/dashboard-stats', getDashboardStats);
 module.exports = router;

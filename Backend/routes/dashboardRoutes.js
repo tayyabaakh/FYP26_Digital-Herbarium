@@ -4,7 +4,7 @@ const router = express.Router();
 
 const {
     getBotanistDashboard
-} = require("../controllers/dashboardController");
+} = require("../controllers/botanistDashboardController");
 
 const {
     protect

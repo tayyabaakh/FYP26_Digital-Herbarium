@@ -1,5 +1,11 @@
 import axiosInstance from './api';
 
+// GET /api/admin/dashboard-stats
+export const getDashboardStatsApi = async () => {
+  const response = await axiosInstance.get('/admin/dashboard-stats');
+  return response.data;
+};
+
 // GET /api/admin/applications?status=pending
 export const getApplicationsApi = async (status = '') => {
   const params = status ? { status } : {};
