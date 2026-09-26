@@ -1,19 +1,10 @@
-// /**
-//  * RoleBasedRoute
-//  * Wraps ProtectedRoute and adds role checking.
-//  * Usage:
-//  *   <RoleBasedRoute allowedRoles={['admin']}>
-//  *     <AdminDashboard />
-//  *   </RoleBasedRoute>
-//  */
-
 
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 
 const RoleBasedRoute = ({ children, allowedRoles }) => {
-  const { user } = useSelector((state) => state.auth);
+  const { user,loading } = useSelector((state) => state.auth);
 
   return (
     <ProtectedRoute>

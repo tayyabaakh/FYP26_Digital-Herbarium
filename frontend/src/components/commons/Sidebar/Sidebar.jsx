@@ -64,7 +64,7 @@ const Sidebar = ({
 
       {/* Footer Navigation (Notifications & Logout) */}
       <div className="space-y-1 pt-4 border-t border-[#133525]">
-        <button
+        {/* <button
           onClick={() => onNavigate && onNavigate("/botanist/notifications")}
           className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
             currentPath.includes("notifications")
@@ -81,7 +81,7 @@ const Sidebar = ({
               {notificationCount}
             </span>
           )}
-        </button>
+        </button> */}
 
         <button
           onClick={onLogout}

@@ -7,6 +7,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
 
+
+const crypto = require('crypto');
+const db = require('../config/db'); // Your database connection pool (mysql2/pg)
+const sendEmail = require('../services/resetpasswordEmail');
 // ─────────────────────────────────────────────
 // JWT GENERATOR
 // ─────────────────────────────────────────────
@@ -23,7 +27,7 @@ const generateToken = (userId, role) => {
 // ─────────────────────────────────────────────
 const safeUser = (user) => ({
   id: user.id,
-  full_name: user.full_name,
+  name: user.name,
   email: user.email,
   role: user.role,
   isActive: user.is_active,
@@ -59,8 +63,8 @@ const applyAsBotanist = async (req, res) => {
       !phone ||
       !institution ||
       !qualification ||
-      !specialisation ||
-      !document_url
+      !specialisation 
+      // !document_url
     ) {
       return res.status(400).json({
         success: false,
@@ -180,7 +184,7 @@ const login = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials',
+        message: 'Invalid Email or Password',
       });
     }
 
@@ -202,12 +206,14 @@ const login = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Login Error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Login failed',
-    });
-  }
+  console.error("LOGIN ERROR:", error);
+
+  return res.status(500).json({
+    success: false,
+    message: 'Login failed',
+    error: error.message,
+  });
+}
 };
 
 // ─────────────────────────────────────────────
@@ -215,8 +221,18 @@ const login = async (req, res) => {
 // ─────────────────────────────────────────────
 const getMe = async (req, res) => {
   try {
+    // 1. Verify req.user exists from middleware
+    if (!req.user || !req.user.userId) {
+      console.error('GetMe Error: req.user or req.user.userId is missing', req.user);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid authentication context',
+      });
+    }
+
+    // 2. Query database using req.user.userId
     const [rows] = await pool.query(
-      `SELECT id, full_name, email, role, is_active
+      `SELECT id, email, role, is_active AS isActive
        FROM users
        WHERE id = ?`,
       [req.user.userId]
@@ -229,13 +245,22 @@ const getMe = async (req, res) => {
       });
     }
 
+    // 3. Format user object to match login payload shape
+    const user = {
+      id: rows[0].id,
+      email: rows[0].email,
+      role: rows[0].role,
+      isActive: rows[0].isActive,
+    };
+
     return res.status(200).json({
       success: true,
-      user: safeUser(rows[0]),
+      user,
     });
 
   } catch (error) {
     console.error('GetMe Error:', error);
+
     return res.status(500).json({
       success: false,
       message: 'Failed to fetch user',
@@ -243,8 +268,100 @@ const getMe = async (req, res) => {
   }
 };
 
+// @desc    Request Password Reset Link
+// @route   POST /api/auth/forgot-password
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // 1. Query user by email (SQL)
+    const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    const user = rows[0];
+
+    // Security practice: Return same response whether user exists or not to prevent user enumeration
+    if (!user) {
+      return res.status(200).json({ message: 'If an account exists, a reset link was sent.' });
+    }
+
+    // 2. Generate unhashed reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    // 3. Hash token and set 15-minute expiration
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const expireTime = new Date(Date.now() + 15 * 60 * 1000); // 15 mins from now
+
+    // 4. Update user record in SQL database
+    await db.query(
+      'UPDATE users SET reset_password_token = ?, reset_password_expire = ? WHERE id = ?',
+      [hashedToken, expireTime, user.id]
+    );
+
+    // 5. Send Email with unhashed reset token
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const resetUrl = `${clientUrl}/reset-password/${resetToken}`;
+    // const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+    const emailMessage = `
+      <h1>Password Reset Request</h1>
+      <p>You requested a password reset for your KUH Digital Herbarium account.</p>
+      <p>Please click the link below to set a new password (valid for 15 minutes):</p>
+      <a href="${resetUrl}" clicktracking="off">${resetUrl}</a>
+    `;
+
+    await sendEmail({
+      email: user.email,
+      subject: 'KUH System - Password Reset Request',
+      html: emailMessage,
+    });
+
+    res.status(200).json({ message: 'If an account exists, a reset link was sent.' });
+  } catch (error) {
+    console.error('Forgot Password Error:', error);
+    res.status(500).json({ message: 'Email could not be sent. Please try again.' });
+  }
+};
+
+// @desc    Reset Password via Token
+// @route   POST /api/auth/reset-password/:token
+const resetPassword = async (req, res) => {
+  try {
+    // 1. Hash incoming token param to match database record
+    const resetPasswordToken = crypto
+      .createHash('sha256')
+      .update(req.params.token)
+      .digest('hex');
+
+    // 2. Query user with matching token that hasn't expired yet
+    const [rows] = await db.query(
+      'SELECT * FROM users WHERE reset_password_token = ? AND reset_password_expire > ?',
+      [resetPasswordToken, new Date()]
+    );
+    const user = rows[0];
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired password reset token.' });
+    }
+
+    // 3. Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+    // 4. Update password and clear reset fields in SQL database
+    await db.query(
+      'UPDATE users SET password = ?, reset_password_token = NULL, reset_password_expire = NULL WHERE id = ?',
+      [hashedPassword, user.id]
+    );
+
+    res.status(200).json({ message: 'Password reset successful.' });
+  } catch (error) {
+    console.error('Reset Password Error:', error);
+    res.status(500).json({ message: 'Server error processing password reset.' });
+  }
+};
+
 module.exports = {
   applyAsBotanist,
+  forgotPassword,
+  resetPassword,
   login,
   getMe,
 };

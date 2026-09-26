@@ -18,6 +18,7 @@ const {
     getAllApplications,
     getApplicationById,
     approveApplication,
+    deleteApplication,
     rejectApplication,
     getAllUsers,
     deactivateUser,
@@ -43,6 +44,7 @@ router.put('/applications/:id/approve', ...adminOnly, approveApplication);
 // PUT  /api/admin/applications/:id/reject      → reject botanist application
 router.put('/applications/:id/reject', ...adminOnly, rejectApplication);
 
+router.delete('/applications/:id', ...adminOnly, deleteApplication);
 // ─── User Management ──────────────────────────────────────────────────────────
 
 // GET  /api/admin/users                        → all users with application data

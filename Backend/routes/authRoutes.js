@@ -6,6 +6,8 @@ const {
   applyAsBotanist,
   login,
   getMe,
+  forgotPassword,
+  resetPassword,
 }                    = require('../controllers/authController');
 const { protect } = require('../Middlewares/authMiddleware');
 
@@ -40,5 +42,8 @@ router.post('/login', login);
  * For now registered without middleware for structure clarity.
  */
 router.get('/me',protect, getMe);
+
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password/:token', resetPassword);
 
 module.exports = router;

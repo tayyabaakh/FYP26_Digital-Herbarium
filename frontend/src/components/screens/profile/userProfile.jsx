@@ -162,7 +162,7 @@ const UserProfile = () => {
                     </div>
                 </div>
 
-                <AccountSettings />
+                {/* <AccountSettings /> */}
             </div>
         </div>
     );
@@ -194,18 +194,6 @@ const Credential = ({ label, value, last = false }) => {
     );
 };
 
-const AccountSettings = () => {
-    return (
-        <div className="bg-white p-6 rounded-2xl border border-gray-100/80 shadow-[0_2px_10px_rgba(0,0,0,0.02)] space-y-4">
-            <h3 className="text-sm font-bold text-gray-900 mb-2">Account Actions</h3>
-            <button
-                type="button"
-                className="w-full py-2 border border-red-400 text-red-500 font-semibold text-xs rounded-lg hover:bg-red-50 transition-colors"
-            >
-                Change Password
-            </button>
-        </div>
-    );
-};
+
 
 export default UserProfile;

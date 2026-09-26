@@ -8,6 +8,7 @@ import {
 import FormInput from "../../../commons/Form/FormInput";
 import FormSelect from "../../../commons/Form/FormSelect";
 import FormSectionTitle from "../../../commons/Form/FormSelectionTitle";
+import { toast } from "react-toastify";
 
 const INITIAL_FORM_DATA = {
   name: "",
@@ -147,7 +148,8 @@ const AISubmission = () => {
       const payload = createFormData();
       const response = await submissionApi(payload);
 
-      alert("Plant submission sent successfully!");
+      // Toast Success
+    toast.success("Plant submission sent successfully!");
       setFormData(INITIAL_FORM_DATA);
       setImagePreview(null);
       setAiFilledFields({});
@@ -246,20 +248,20 @@ const AISubmission = () => {
             required
           /> */}
 
-          <FormSelect
+          <FormInput
             label="Family"
             name="family"
             value={formData.family}
             onChange={handleChange}
-            options={[
-              "Pteridaceae",
-              "Asteraceae",
-              "Fabaceae",
-              "Poaceae",
-              "Rosaceae",
-              "Solanaceae",
-              "Lamiaceae",
-            ]}
+            // options={[
+            //   "Pteridaceae",
+            //   "Asteraceae",
+            //   "Fabaceae",
+            //   "Poaceae",
+            //   "Rosaceae",
+            //   "Solanaceae",
+            //   "Lamiaceae",
+            // ]}
             required
           />
 

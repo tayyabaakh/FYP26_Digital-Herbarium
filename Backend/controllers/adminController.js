@@ -15,7 +15,7 @@
  *   PUT  /api/admin/users/:id/deactivate    → Deactivate a user account
  *   PUT  /api/admin/users/:id/activate      → Reactivate a user account
  */
-
+const { sendRejectionEmail } = require("../services/rejectionEmail");
 const pool = require('../config/db');
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -290,7 +290,7 @@ const rejectApplication = async (req, res) => {
   try {
     const { id } = req.params;
     const adminId = req.user.userId;
-    const { rejection_reason } = req.body;
+    const rejectionReason = req.body.rejection_reason || req.body.reason;
 
     // ── Step 1: Fetch application ─────────────────────────────────────────
     const [apps] = await connection.query(
@@ -315,6 +315,8 @@ const rejectApplication = async (req, res) => {
       });
     }
 
+    const formattedReason = rejectionReason ? rejectionReason.trim() : null;
+
     // ── Step 3: Update application status to rejected ─────────────────────
     await connection.query(
       `UPDATE botanist_applications
@@ -326,19 +328,35 @@ const rejectApplication = async (req, res) => {
        WHERE id = ?`,
       [
         adminId,
-        rejection_reason ? rejection_reason.trim() : null,
+        formattedReason,
         id,
       ]
     );
 
+    // ── Step 4: Dispatch Rejection Email ──────────────────────────────────
+    const targetEmail = app.email;       // Schema matches 'email'
+    const applicantName = app.full_name; // Schema matches 'full_name'
+
+    if (targetEmail) {
+      try {
+        console.log(`📧 Attempting to send rejection email to: ${targetEmail}`);
+        const mailResult = await sendRejectionEmail(targetEmail, applicantName, formattedReason);
+        console.log(`✅ Email sent successfully! MessageID: ${mailResult.messageId}`);
+      } catch (emailErr) {
+        console.error("❌ Nodemailer dispatch failed:", emailErr);
+      }
+    } else {
+      console.warn("⚠️ targetEmail was empty or undefined. Email was skipped.");
+    }
+
     return res.status(200).json({
       success: true,
-      message: `Application rejected for ${app.full_name}.`,
+      message: `Application rejected and email notification sent for ${applicantName}.`,
       data: {
         applicationId: parseInt(id),
-        applicantName: app.full_name,
+        applicantName: applicantName,
         status: 'rejected',
-        rejectionReason: rejection_reason || null,
+        rejectionReason: formattedReason,
       },
     });
 
@@ -347,12 +365,12 @@ const rejectApplication = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Failed to reject application',
+      error: error.message,
     });
   } finally {
     connection.release();
   }
 };
-
 // ─────────────────────────────────────────────────────────────────────────────
 // @route   GET /api/admin/users
 // @desc    Get all users in the system
@@ -490,11 +508,80 @@ const activateUser = async (req, res) => {
   }
 };
 
+
+// ─────────────────────────────────────────────────────────────────────────────
+// @route   DELETE /api/admin/applications/:id
+// @desc    Delete an application record (approved or rejected only)
+// @access  Admin only
+// ─────────────────────────────────────────────────────────────────────────────
+const deleteApplication = async (req, res) => {
+  console.log("👉 DELETE Request received for Params:", req.params); // <--- Check 1
+  
+  const connection = await pool.getConnection();
+
+  try {
+    const { id } = req.params;
+
+    const [rows] = await connection.query(
+      `SELECT id, full_name, status FROM botanist_applications WHERE id = ? LIMIT 1`,
+      [id]
+    );
+
+    console.log("👉 Query Result for ID:", rows); // <--- Check 2
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: `Application record #${id} not found in database.`,
+      });
+    }
+
+    const application = rows[0];
+
+    if (application.status === 'pending') {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot delete a pending application. Please approve or reject it first.',
+      });
+    }
+
+    await connection.beginTransaction();
+
+    await connection.query(
+      `UPDATE botanist_applications SET reviewed_by = NULL WHERE id = ?`,
+      [id]
+    );
+
+    await connection.query(
+      `DELETE FROM botanist_applications WHERE id = ?`,
+      [id]
+    );
+
+    await connection.commit();
+
+    return res.status(200).json({
+      success: true,
+      message: `Application record for ${application.full_name} deleted successfully.`,
+      data: { id: parseInt(id) },
+    });
+
+  } catch (error) {
+    await connection.rollback();
+    console.error("❌ MySQL FULL ERROR DETAILS:", error); // <--- Check 3
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to delete application record',
+    });
+  } finally {
+    connection.release();
+  }
+};
 module.exports = {
   getAllApplications,
   getApplicationById,
   approveApplication,
   rejectApplication,
+  deleteApplication,
   getAllUsers,
   deactivateUser,
   activateUser,

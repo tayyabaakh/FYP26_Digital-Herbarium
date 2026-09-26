@@ -16,6 +16,10 @@ const BotanistApply = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  // States for password visibility toggle
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -35,6 +39,7 @@ const BotanistApply = () => {
 
   const validateStep = () => {
     setError("");
+
     if (step === 1) {
       if (!formData.name.trim()) {
         setError("Full name is required");
@@ -44,8 +49,22 @@ const BotanistApply = () => {
         setError("Email is required");
         return false;
       }
+      // Email format regex validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email.trim())) {
+        setError("Please enter a valid email address");
+        return false;
+      }
       if (!formData.phone.trim()) {
         setError("Phone number is required");
+        return false;
+      }
+      // Phone validation: optional leading '+', digits only, max 15 digits total
+      const phoneRegex = /^\+?\d{1,15}$/;
+      if (!phoneRegex.test(formData.phone.trim())) {
+        setError(
+          "Phone number can only contain numbers (and an optional leading '+') up to 15 digits",
+        );
         return false;
       }
       if (!formData.institution.trim()) {
@@ -53,6 +72,7 @@ const BotanistApply = () => {
         return false;
       }
     }
+
     if (step === 2) {
       if (!formData.qualification.trim()) {
         setError("Qualification is required");
@@ -63,21 +83,30 @@ const BotanistApply = () => {
         return false;
       }
       if (!formData.experience_years) {
-        setError("Experience is required");
+        setError("Years of experience is required");
         return false;
       }
+      // Portfolio URL is optional
     }
+
     if (step === 3) {
-      if (!formData.document_url.trim()) {
-        setError("Document URL is required");
-        return false;
-      }
+      // Document URL is optional
       if (!formData.password) {
         setError("Password is required");
         return false;
       }
       if (formData.password.length < 8) {
-        setError("Password must be at least 8 characters");
+        setError("Password must be at least 8 characters long");
+        return false;
+      }
+      // Password numeric-only validation
+      const digitsOnlyRegex = /^\d+$/;
+      if (!digitsOnlyRegex.test(formData.password)) {
+        setError("Password must contain numbers only");
+        return false;
+      }
+      if (!formData.confirmPassword) {
+        setError("Please confirm your password");
         return false;
       }
       if (formData.password !== formData.confirmPassword) {
@@ -85,12 +114,14 @@ const BotanistApply = () => {
         return false;
       }
     }
+
     return true;
   };
 
   const handleNext = () => {
     if (validateStep()) setStep((s) => s + 1);
   };
+
   const handleBack = () => {
     setError("");
     setStep((s) => s - 1);
@@ -110,7 +141,7 @@ const BotanistApply = () => {
         specialisation: formData.specialisation,
         experience_years: formData.experience_years,
         portfolio_url: formData.portfolio_url || null,
-        document_url: formData.document_url,
+        document_url: formData.document_url || null,
         password: formData.password,
       });
       setSuccess(true);
@@ -228,26 +259,26 @@ const BotanistApply = () => {
               </h3>
               <div className="grid grid-cols-2 gap-5">
                 <Field
-                  label="Full Name"
+                  label="Full Name *"
                   placeholder="Dr. Ahmad Khan"
                   value={formData.name}
                   onChange={(v) => update("name", v)}
                 />
                 <Field
-                  label="Email Address"
+                  label="Email Address *"
                   type="email"
                   placeholder="ahmad@institution.edu.pk"
                   value={formData.email}
                   onChange={(v) => update("email", v)}
                 />
                 <Field
-                  label="Phone Number"
-                  placeholder="+92 300 0000000"
+                  label="Phone Number * (Max 15 digits)"
+                  placeholder="+923000000000"
                   value={formData.phone}
                   onChange={(v) => update("phone", v)}
                 />
                 <Field
-                  label="Institution / University"
+                  label="Institution / University *"
                   placeholder="University of Karachi"
                   value={formData.institution}
                   onChange={(v) => update("institution", v)}
@@ -264,20 +295,20 @@ const BotanistApply = () => {
               </h3>
               <div className="grid grid-cols-2 gap-5">
                 <Field
-                  label="Highest Qualification"
+                  label="Highest Qualification *"
                   placeholder="PhD Botany"
                   value={formData.qualification}
                   onChange={(v) => update("qualification", v)}
                 />
                 <Field
-                  label="Specialisation"
+                  label="Specialisation *"
                   placeholder="Ethnobotany, Medicinal Plants..."
                   value={formData.specialisation}
                   onChange={(v) => update("specialisation", v)}
                 />
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                    Years of Experience
+                    Years of Experience *
                   </label>
                   <select
                     value={formData.experience_years}
@@ -293,7 +324,12 @@ const BotanistApply = () => {
                     <option value="1">1 Year</option>
                     <option value="2">2 Years</option>
                     <option value="3">3 Years</option>
+                    <option value="4">4 Years</option>
                     <option value="5">5 Years</option>
+                    <option value="6">6 Years</option>
+                    <option value="7">7 Years</option>
+                    <option value="8">8 Years</option>
+                    <option value="9">9 Years</option>
                     <option value="10">10+ Years</option>
                   </select>
                 </div>
@@ -315,24 +351,30 @@ const BotanistApply = () => {
               </h3>
               <div className="grid grid-cols-1 gap-5">
                 <Field
-                  label="Certificate / Document URL"
+                  label="Certificate / Document URL (Optional)"
                   placeholder="https://drive.google.com/... or Cloudinary URL"
                   value={formData.document_url}
                   onChange={(v) => update("document_url", v)}
                 />
                 <Field
-                  label="Create Password"
-                  type="password"
-                  placeholder="Minimum 8 characters"
+                  label="Create Password * (Numbers only, min 8 digits)"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="e.g. 12345678"
                   value={formData.password}
                   onChange={(v) => update("password", v)}
+                  showToggle={true}
+                  isShown={showPassword}
+                  onToggle={() => setShowPassword((prev) => !prev)}
                 />
                 <Field
-                  label="Confirm Password"
-                  type="password"
-                  placeholder="Re-enter password"
+                  label="Confirm Password *"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Re-enter numbers password"
                   value={formData.confirmPassword}
                   onChange={(v) => update("confirmPassword", v)}
+                  showToggle={true}
+                  isShown={showConfirmPassword}
+                  onToggle={() => setShowConfirmPassword((prev) => !prev)}
                 />
               </div>
             </>
@@ -376,18 +418,43 @@ const BotanistApply = () => {
 };
 
 // ── Reusable Field ────────────────────────────────────────────
-const Field = ({ label, placeholder, value, onChange, type = "text" }) => (
+const Field = ({
+  label,
+  placeholder,
+  value,
+  onChange,
+  type = "text",
+  showToggle = false,
+  isShown = false,
+  onToggle,
+}) => (
   <div>
     <label className="block text-xs font-medium text-gray-700 mb-1.5">
       {label}
     </label>
-    <input
-      type={type}
-      placeholder={placeholder}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm bg-[#f0faf4] text-gray-900 outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f] transition-colors box-border"
-    />
+    <div className="relative">
+      <input
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm bg-[#f0faf4] text-gray-900 outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f] transition-colors box-border ${
+          showToggle ? "pr-10" : ""
+        }`}
+      />
+      {showToggle && (
+        <button
+          type="button"
+          onClick={onToggle}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none flex items-center justify-center cursor-pointer"
+          title={isShown ? "Hide password" : "Show password"}
+        >
+          <span className="material-symbols-outlined text-lg">
+            {isShown ? "visibility_off" : "visibility"}
+          </span>
+        </button>
+      )}
+    </div>
   </div>
 );
 

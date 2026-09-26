@@ -8,9 +8,9 @@ import { loadUserThunk } from "./store/slices/authSlice";
 // Layouts
 import MainLayout from "./components/wrappers/MainLayout/MainLayout";
 import BotanistLayout from "./components/screens/Botanist/BotanistLayout";
-import AdminLayout from "./components/screens/admin/AdminLayout"; // <--- Admin Layout Import
+import AdminLayout from "./components/screens/admin/AdminLayout";
 
-// Public & General Screens
+// Public screens
 import Home from "./components/screens/Home";
 import About from "./components/screens/About";
 import FacultySection from "./components/screens/FacultyandStaff";
@@ -18,57 +18,125 @@ import ContactPage from "./components/screens/Contact";
 import PlantDetails from "./components/screens/PlantsListing/PlantDetails";
 import PlantsListing from "./components/screens/PlantsListing/PlantListing";
 
-// Auth Screens
+// Auth
 import LoginPage from "./components/screens/Login/Login";
 import BotanistApply from "./components/screens/Botanist/BotanistApply";
+import ForgotPasswordPage from "./components/screens/Login/ForgotPassword";
+import ResetPasswordPage from "./components/screens/Login/ResetPassword";
 
-// Botanist Sub-Screens
+// Botanist
 import BotanistDashboard from "./components/screens/Botanist/BotanistDashboard";
 import BotanistNewSubmission from "./components/screens/Botanist/BotanistNewSubmission/BotanistNewSubmission";
 import MySubmissions from "./components/screens/Botanist/BotanistNewSubmission/MySubmissions/MySubmissions";
 
-// Admin Sub-Screens (Import/Create these components in your project)
-import BotanistApplicationReview from "./components/screens/admin/Dashboard";
-// import PendingVerifications from "./components/screens/admin/PendingVerifications";
-// import HerbariumDatabase from "./components/screens/admin/HerbariumDatabase";
-// import UserManagement from "./components/screens/admin/UserManagement";
-// import AuditLogs from "./components/screens/admin/AuditLogs";
-// import AdminSettings from "./components/screens/admin/AdminSettings";
-// import AdminProfile from "./components/screens/admin/AdminProfile";
-
-// Route Guards
-import ProtectedRoute from "./routes/ProtectedRoute";
-import RoleBasedRoute from "./routes/RoleBasedRoute";
+// Admin
 import Dashboard from "./components/screens/admin/Dashboard";
 import Applications from "./components/screens/admin/Applications";
-import UserProfile from "./components/screens/profile/userProfile";
 import VerificationCenter from "./components/screens/admin/Verification";
 import HerbariumRecords from "./components/screens/admin/Herbarium_data";
 
-// ---------------------------------------------------
-// Session Restore
-// ---------------------------------------------------
+// Profile
+import UserProfile from "./components/screens/profile/userProfile";
+
+// Guards
+import RoleBasedRoute from "./routes/RoleBasedRoute";
+import PublicOnlyRoute from "./routes/PublicRoute";
+
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+// ============================================================
+// SESSION INITIALIZATION
+// ============================================================
 const AppInit = ({ children }) => {
   const dispatch = useDispatch();
-  const { loading } = useSelector((state) => state.auth);
+
+  const initializing = useSelector((state) => state.auth.initializing);
 
   useEffect(() => {
-    dispatch(loadUserThunk());
+    const token = localStorage.getItem("token");
+
+    /*
+     * Only restore a session if a token actually exists.
+     *
+     * This prevents unnecessary loadUserThunk calls on
+     * every fresh visit to the login page.
+     */
+    if (token) {
+      dispatch(loadUserThunk());
+    }
   }, [dispatch]);
 
-  if (loading) return null;
+  if (initializing) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          backgroundColor: "#f8fafc",
+          fontFamily: "sans-serif",
+          color: "#0f5132",
+        }}
+      >
+        <div
+          style={{
+            width: "40px",
+            height: "40px",
+            border: "4px solid #e2e8f0",
+            borderTop: "4px solid #0f5132",
+            borderRadius: "50%",
+            animation: "spin 1s linear infinite",
+            marginBottom: "16px",
+          }}
+        />
+
+        <style>
+          {`
+            @keyframes spin {
+              0% {
+                transform: rotate(0deg);
+              }
+
+              100% {
+                transform: rotate(360deg);
+              }
+            }
+          `}
+        </style>
+
+        <p
+          style={{
+            fontSize: "14px",
+            fontWeight: "500",
+            margin: 0,
+          }}
+        >
+          Restoring session...
+        </p>
+      </div>
+    );
+  }
 
   return children;
 };
 
-// ---------------------------------------------------
-// Main Routes
-// ---------------------------------------------------
+// ============================================================
+// ROUTES
+// ============================================================
 const AppRoutes = () => {
   return (
     <AppInit>
+      <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+        />
       <Routes>
-        {/* Public Layout Routes */}
+        
+        {/* PUBLIC */}
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
           <Route path="home" element={<Home />} />
@@ -79,13 +147,30 @@ const AppRoutes = () => {
           <Route path="contact" element={<ContactPage />} />
         </Route>
 
-        {/* Auth Routes */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/apply" element={<BotanistApply />} />
+        {/* AUTH */}
+        <Route
+          path="/login"
+          element={
+            <PublicOnlyRoute>
+              <LoginPage />
+            </PublicOnlyRoute>
+          }
+        />
 
-        {/* --------------------------------------------------- */}
-        {/* Admin Portal Nested Routes */}
-        {/* --------------------------------------------------- */}
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+
+        <Route
+          path="/apply"
+          element={
+            <PublicOnlyRoute>
+              <BotanistApply />
+            </PublicOnlyRoute>
+          }
+        />
+
+        {/* ADMIN */}
         <Route
           path="/admin"
           element={
@@ -94,22 +179,20 @@ const AppRoutes = () => {
             </RoleBasedRoute>
           }
         >
-          {/* Default redirect: /admin -> /admin/dashboard */}
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
 
-          {/* Child sub-routes rendered within AdminLayout's <Outlet /> */}
           <Route path="dashboard" element={<Dashboard />} />
+
           <Route path="application" element={<Applications />} />
+
           <Route path="verification" element={<VerificationCenter />} />
 
           <Route path="herbarium-records" element={<HerbariumRecords />} />
-          {/* <Route path="settings" element={<AdminSettings />} /> */}
+
           <Route path="profile" element={<UserProfile />} />
         </Route>
 
-        {/* --------------------------------------------------- */}
-        {/* Botanist Portal Nested Routes */}
-        {/* --------------------------------------------------- */}
+        {/* BOTANIST */}
         <Route
           path="/botanist"
           element={
@@ -118,26 +201,27 @@ const AppRoutes = () => {
             </RoleBasedRoute>
           }
         >
-          {/* Default redirect: /botanist -> /botanist/profile */}
           <Route index element={<Navigate to="/botanist/profile" replace />} />
 
-          {/* Child sub-routes rendered within BotanistLayout's <Outlet /> */}
           <Route path="dashboard" element={<BotanistDashboard />} />
+
           <Route path="new-submission" element={<BotanistNewSubmission />} />
+
           <Route path="my-submissions" element={<MySubmissions />} />
+
           <Route path="profile" element={<UserProfile />} />
         </Route>
 
-        {/* Fallback */}
+        {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppInit>
   );
 };
 
-// ---------------------------------------------------
-// Root App
-// ---------------------------------------------------
+// ============================================================
+// ROOT
+// ============================================================
 function App() {
   return (
     <Provider store={store}>

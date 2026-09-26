@@ -1,115 +1,207 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getMeApi, loginApi } from '../../api/authApi';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { getMeApi, loginApi } from "../../api/authApi";
 
-// ── Async: Login ──────────────────────────────────────────────
+// ============================================================
+// LOGIN
+// ============================================================
 export const loginThunk = createAsyncThunk(
-  'auth/login',
+  "auth/login",
   async ({ email, password }, { rejectWithValue }) => {
     try {
       const data = await loginApi(email, password);
-      // Persist to localStorage
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Persist successful session
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
       return data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || 'Login failed'
+        error.response?.data?.message ||
+          "Incorrect email or password. Please try again."
       );
     }
   }
 );
 
-// ── Async: Restore session on page reload ─────────────────────
+// ============================================================
+// RESTORE EXISTING SESSION
+// ============================================================
 export const loadUserThunk = createAsyncThunk(
-  'auth/loadUser',
+  "auth/loadUser",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return rejectWithValue('No token');
-      // Verify token is still valid with backend
+      const token = localStorage.getItem("token");
+
+      // No existing session
+      if (!token) {
+        return rejectWithValue("No token");
+      }
+
+      // Verify token with backend
       const data = await getMeApi();
-      return { user: data.user, token };
+
+      // Keep local storage user synchronized
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      return {
+        user: data.user,
+        token,
+      };
     } catch (error) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      return rejectWithValue('Session expired');
+      // Invalid/expired session
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      return rejectWithValue(
+        error.response?.data?.message || "Session expired"
+      );
     }
   }
 );
 
-// ── Initial State ─────────────────────────────────────────────
+// ============================================================
+// INITIAL STATE
+// ============================================================
+const storedToken = localStorage.getItem("token");
+const storedUser = localStorage.getItem("user");
+
+let parsedUser = null;
+
+try {
+  parsedUser = storedUser ? JSON.parse(storedUser) : null;
+} catch (error) {
+  console.error(
+    "Failed to parse user from localStorage:",
+    error
+  );
+}
+
 const initialState = {
-  user:            null,
-  token:           localStorage.getItem('token') || null,
-  isAuthenticated: false,
-  loading:         false,
-  error:           null,
+  user: parsedUser,
+  token: storedToken || null,
+
+  // Authentication state
+  isAuthenticated: !!storedToken && !!parsedUser,
+
+  // ONLY for initial session restoration
+  initializing: !!storedToken,
+
+  // ONLY for login request
+  loginLoading: false,
+
+  // Authentication error
+  error: null,
 };
 
-// ── Slice ─────────────────────────────────────────────────────
+// ============================================================
+// SLICE
+// ============================================================
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
+
   initialState,
+
   reducers: {
-    // Manual login success (if needed outside thunk)
     loginSuccess(state, action) {
-      state.user            = action.payload.user;
-      state.token           = action.payload.token;
+      state.user = action.payload.user;
+      state.token = action.payload.token;
       state.isAuthenticated = true;
-      state.error           = null;
+      state.error = null;
     },
-    // Logout — clears everything
+
     logout(state) {
-      state.user            = null;
-      state.token           = null;
+      state.user = null;
+      state.token = null;
       state.isAuthenticated = false;
-      state.error           = null;
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      state.error = null;
+      state.initializing = false;
+      state.loginLoading = false;
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
     },
-    // Clear any auth errors
+
     clearError(state) {
       state.error = null;
     },
   },
 
   extraReducers: (builder) => {
-    // ── Login ───────────────────────────────────────────────
+    // ========================================================
+    // LOGIN
+    // ========================================================
     builder
       .addCase(loginThunk.pending, (state) => {
-        state.loading = true;
-        state.error   = null;
+        state.loginLoading = true;
+        state.error = null;
       })
+
       .addCase(loginThunk.fulfilled, (state, action) => {
-        state.loading         = false;
-        state.user            = action.payload.user;
-        state.token           = action.payload.token;
+        state.loginLoading = false;
+
+        state.user = action.payload.user;
+        state.token = action.payload.token;
         state.isAuthenticated = true;
+        state.error = null;
       })
+
       .addCase(loginThunk.rejected, (state, action) => {
-        state.loading = false;
-        state.error   = action.payload;
+        state.loginLoading = false;
+
+        state.error =
+          action.payload ||
+          "Incorrect email or password. Please try again.";
+
+        /*
+         * Important:
+         * A failed login must never leave an old authenticated
+         * state behind.
+         */
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
       });
 
-    // ── Load User (page reload) ─────────────────────────────
+    // ========================================================
+    // SESSION RESTORATION
+    // ========================================================
     builder
       .addCase(loadUserThunk.pending, (state) => {
-        state.loading = true;
+        /*
+         * IMPORTANT:
+         * Do NOT touch loginLoading here.
+         * Do NOT touch isAuthenticated here.
+         */
+        state.initializing = true;
       })
+
       .addCase(loadUserThunk.fulfilled, (state, action) => {
-        state.loading         = false;
-        state.user            = action.payload.user;
-        state.token           = action.payload.token;
+        state.initializing = false;
+
+        state.user = action.payload.user;
+        state.token = action.payload.token;
         state.isAuthenticated = true;
+        state.error = null;
       })
+
       .addCase(loadUserThunk.rejected, (state) => {
-        state.loading         = false;
-        state.user            = null;
-        state.token           = null;
+        state.initializing = false;
+
+        state.user = null;
+        state.token = null;
         state.isAuthenticated = false;
       });
   },
 });
 
-export const { loginSuccess, logout, clearError } = authSlice.actions;
+export const {
+  loginSuccess,
+  logout,
+  clearError,
+} = authSlice.actions;
+
 export default authSlice.reducer;

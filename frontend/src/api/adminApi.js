@@ -22,6 +22,11 @@ export const rejectApplicationApi = async (id, rejection_reason = '') => {
   return response.data;
 };
 
+// adminApi.js
+export const deleteApplicationApi = async (id) => {
+  const response = await axiosInstance.delete(`/admin/applications/${id}`);
+  return response.data;
+};
 // GET /api/admin/users
 export const getAllUsersApi = async () => {
   const response = await axiosInstance.get('/admin/users');
