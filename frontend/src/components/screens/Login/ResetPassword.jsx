@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const ResetPasswordPage = () => {
   const { token } = useParams();
@@ -29,7 +30,7 @@ const ResetPasswordPage = () => {
 
     try {
       await axios.post(`http://localhost:4000/api/auth/reset-password/${token}`, { password });
-      alert('Password reset successful! Please log in with your new credentials.');
+      toast.success('Password reset successful! Please log in with your new credentials.');
       navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid or expired password reset token.');
