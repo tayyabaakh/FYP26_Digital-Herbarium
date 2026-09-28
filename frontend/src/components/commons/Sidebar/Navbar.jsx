@@ -1,32 +1,66 @@
-import React, { useState } from "react";
-import { FiSearch, FiBell, FiChevronDown } from "react-icons/fi";
+import React, { useEffect, useState } from "react";
+import { FiChevronDown } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import { getMeApi } from "../../../api/authApi";
 
 const Navbar = ({
   title = "My Profile",
   subtitle = "Manage your account and credentials",
-  user = {
-    name: "Dr. Ahmad Khan",
-    initials: "DA",
-  },
-  onSearch,
-  hasUnreadNotifications = true,
-  onNotificationClick,
 }) => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+
+  const [user, setUser] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-    if (onSearch) onSearch(e.target.value);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const data = await getMeApi();
+        console.log( data);
+        
+        setUser(data.user);
+      } catch (error) {
+        console.error("Failed to fetch current user:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  const getInitials = (name) => {
+    if (!name) return "U";
+
+    const words = name.trim().split(/\s+/);
+
+    if (words.length === 1) {
+      return words[0].substring(0, 2).toUpperCase();
+    }
+
+    return (
+      words[0][0] +
+      words[words.length - 1][0]
+    ).toUpperCase();
+  };
+
+  const handleProfileSettings = () => {
+    setIsDropdownOpen(false);
+    navigate("/profile");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
   };
 
   return (
     <header className="h-16 bg-white border-b border-gray-100/80 px-8 flex items-center justify-between sticky top-0 z-20 font-sans">
-      {/* Dynamic Title & Subtitle */}
+
+      {/* Page Title */}
       <div>
         <h1 className="text-lg font-bold text-gray-900 leading-tight">
           {title}
         </h1>
+
         {subtitle && (
           <p className="text-xs font-medium text-gray-400 mt-0.5">
             {subtitle}
@@ -34,67 +68,85 @@ const Navbar = ({
         )}
       </div>
 
-      {/* Right Controls Area */}
-      <div className="flex items-center gap-4">
-        {/* Search Input Bar */}
-        <div className="relative">
-          <FiSearch
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-            size={15}
-          />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            placeholder="Search..."
-            className="pl-9 pr-4 py-1.5 bg-gray-50 border border-gray-200/80 rounded-xl text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:bg-white transition-all w-56"
-          />
-        </div>
+      {/* User */}
+      <div className="relative">
 
-        {/* Notification Bell */}
         <button
-          onClick={onNotificationClick}
-          className="relative p-2 text-gray-500 hover:text-emerald-600 rounded-xl hover:bg-gray-50 transition-colors"
-          title="Notifications"
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-gray-50 transition-colors"
         >
-          <FiBell size={18} />
-          {hasUnreadNotifications && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white" />
-          )}
+
+          {/* Avatar */}
+          <div className="w-8 h-8 rounded-full bg-[#00a859] text-white flex items-center justify-center font-bold text-xs">
+            {getInitials(user?.name)}
+          </div>
+
+          {/* Name */}
+          <span className="text-xs font-semibold text-gray-700 max-w-[140px] truncate">
+            {user?.name || "Loading..."}
+          </span>
+
+          <FiChevronDown
+            className="text-gray-400"
+            size={14}
+          />
+
         </button>
 
-        {/* User Profile Pill / Dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-gray-50 transition-colors"
-          >
-            <div className="w-8 h-8 rounded-full bg-[#00a859] text-white flex items-center justify-center font-bold text-xs shadow-2xs">
-              {user.initials}
-            </div>
-            <span className="text-xs font-semibold text-gray-700 max-w-[120px] truncate">
-              {user.name}
-            </span>
-            <FiChevronDown className="text-gray-400" size={14} />
-          </button>
+        {/* Dropdown */}
+        {isDropdownOpen && (
+          <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 text-xs text-gray-700 z-30">
 
-          {/* Quick User Dropdown Menu */}
-          {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 text-xs text-gray-700 z-30">
-              <div className="px-3 py-2 border-b border-gray-100">
-                <p className="font-bold text-gray-900">{user.name}</p>
-                <p className="text-[10px] text-gray-400 truncate">Authenticated User</p>
+            {/* User Details */}
+            <div className="px-3 py-3 border-b border-gray-100">
+
+              <div className="flex items-center gap-2">
+
+                <div className="w-9 h-9 rounded-full bg-[#00a859] text-white flex items-center justify-center font-bold text-xs">
+                  {getInitials(user?.name)}
+                </div>
+
+                <div className="min-w-0">
+
+                  <p className="font-bold text-gray-900 truncate">
+                    {user?.name || "User"}
+                  </p>
+
+                  <p className="text-[10px] text-gray-400 truncate">
+                    {user?.email || ""}
+                  </p>
+
+                </div>
+
               </div>
-              <button
-                onClick={() => setIsDropdownOpen(false)}
-                className="w-full text-left px-3 py-2 hover:bg-gray-50 hover:text-emerald-600 font-medium transition-colors"
-              >
-                Profile Settings
-              </button>
+
+              <span className="inline-block mt-2 px-2 py-1 rounded-md bg-emerald-50 text-emerald-600 text-[10px] font-semibold capitalize">
+                {user?.role || "user"}
+              </span>
+
             </div>
-          )}
-        </div>
+
+            {/* Profile */}
+            {/* <button
+              onClick={handleProfileSettings}
+              className="w-full text-left px-3 py-2.5 hover:bg-gray-50 hover:text-emerald-600 font-medium transition-colors"
+            >
+              Profile Settings
+            </button> */}
+
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              className="w-full text-left px-3 py-2.5 hover:bg-red-50 hover:text-red-600 font-medium transition-colors"
+            >
+              Logout
+            </button>
+
+          </div>
+        )}
+
       </div>
+
     </header>
   );
 };
