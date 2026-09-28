@@ -59,5 +59,5 @@ router.put('/users/:id/activate', ...adminOnly, activateUser);
 
 
 
-router.get('/dashboard-stats', getDashboardStats);
+router.get('/dashboard-stats', ...adminOnly , getDashboardStats);
 module.exports = router;

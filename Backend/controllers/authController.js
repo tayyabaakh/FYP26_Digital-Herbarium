@@ -232,7 +232,7 @@ const getMe = async (req, res) => {
 
     // 2. Query database using req.user.userId
     const [rows] = await pool.query(
-      `SELECT id, email, role, is_active AS isActive
+      `SELECT id, name, email, role, is_active AS isActive
        FROM users
        WHERE id = ?`,
       [req.user.userId]
@@ -248,6 +248,7 @@ const getMe = async (req, res) => {
     // 3. Format user object to match login payload shape
     const user = {
       id: rows[0].id,
+      name: rows[0].name,
       email: rows[0].email,
       role: rows[0].role,
       isActive: rows[0].isActive,

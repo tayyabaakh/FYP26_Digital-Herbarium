@@ -7,6 +7,7 @@ import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, 
   PieChart, Pie, Cell 
 } from 'recharts';
+import { getDashboardStatsApi } from '../../../api/adminApi';
 
 const RADIAN = Math.PI / 180;
 const COLORS = ['#059669', '#10B981', '#34D399', '#6EE7B7', '#A7F3D0'];
@@ -17,29 +18,50 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     // Replace with your actual API call endpoint
-    fetch('http://localhost:4000/api/admin/dashboard-stats')
-      .then((res) => res.json())
-      .then((resData) => {
-        if (resData.success) setData(resData.data);
+    const fetchDashboardStats = async () => {
+      try {
+        const response = await getDashboardStatsApi();
+        // console.log(response);
+        
+        setData(response.data)
+      }
+      catch(err){
+        console.error("failed to fetch data", err);
+  
+      }
+      finally{
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
+      }
+
+    };
+    fetchDashboardStats();
+
+    // fetch('http://localhost:4000/api/admin/dashboard-stats')
+    //   .then((res) => res.json())
+    //   .then((resData) => {
+    //     if (resData.success) setData(resData.data);
+    //     setLoading(false);
+    //   })
+    //   .catch((err) => {
+    //     console.error(err);
+    //     setLoading(false);
+    //   });
+
   }, []);
 
   if (loading) {
     return <div className="p-8 text-center text-gray-500">Loading Dashboard Metrics...</div>;
   }
 
-  const { stats, trends, familyDistribution, topContributors, pendingActions } = data || {};
+  const { familyDistribution,pendingActions, stats, topContributors,trends  } = data || {};
 
+  console.log(data);
+  
   return (
     <div className="min-h-screen bg-[#F8FAFC] p-6 text-gray-800 space-y-6">
       
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
           <p className="text-sm text-gray-500">System overview — Flora-Digitalis Pakistan</p>
@@ -65,14 +87,14 @@ export default function AdminDashboard() {
             <span className="text-sm font-semibold text-gray-700">Admin Faisal</span>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Timestamp Badge */}
-      <div className="flex justify-end">
+      {/* <div className="flex justify-end">
         <span className="bg-emerald-50 text-emerald-700 text-xs px-3 py-1 rounded-full font-medium border border-emerald-200">
           Last updated: 2 min ago
         </span>
-      </div>
+      </div> */}
 
       {/* 6 Metric Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
