@@ -300,71 +300,165 @@ const ForestSchool = () => {
   const normalize = (value) => String(value ?? '').trim().toLowerCase();
 
   useEffect(() => {
-    const loadPlants = async () => {
-      try {
-        const response = await fetchPlants();
-        const data = response?.data || response || [];
+  const cleanSearch = normalize(searchTerm);
 
-        // create a stable UI key because specimen_id_gh_number is not guaranteed unique
-        const normalizedPlants = data.map((plant, index) => ({
-          ...plant,
-          _uiKey: [
-            plant.specimen_id_gh_number ?? 'no-id',
-            plant.collection_no ?? 'no-collection',
-            plant.location_code ?? 'no-location',
-            plant.name ?? 'no-name',
-            index
-          ].join('-')
-        }));
+  if (!cleanSearch) {
+    setFilteredSuggestions([]);
+    return;
+  }
 
-        setPlants(normalizedPlants);
-      } catch (err) {
-        console.error('Failed to load plants for search', err);
-      }
-    };
+  // Helper comparator for Family -> Name -> Species alphabetical order
+  const alphabeticalCompare = (a, b) => {
+    const familyComp = String(a.family || '').localeCompare(String(b.family || ''), undefined, { sensitivity: 'base' });
+    if (familyComp !== 0) return familyComp;
 
-    loadPlants();
-  }, []);
+    const nameComp = String(a.name || '').localeCompare(String(b.name || ''), undefined, { sensitivity: 'base' });
+    if (nameComp !== 0) return nameComp;
 
-  useEffect(() => {
-    const cleanSearch = normalize(searchTerm);
+    return String(a.species || '').localeCompare(String(b.species || ''), undefined, { sensitivity: 'base' });
+  };
 
-    if (!cleanSearch) {
-      setFilteredSuggestions([]);
-      return;
-    }
+  let sortedMatches = [];
 
-    // Step 1: filter only on the fields you want
-    const matches = plants.filter((p) => {
-      const plantName = normalize(p.name);
-      const plantFamily = normalize(p.family);
+  if (searchMode === 'startsWith') {
+    // Priority 1: Families starting with search term
+    const familyMatches = plants
+      .filter((p) => normalize(p.family).startsWith(cleanSearch))
+      .sort(alphabeticalCompare);
 
-      if (searchMode === 'startsWith') {
+    // Priority 2: Names starting with search term (excluding already matched families)
+    const nameMatches = plants
+      .filter(
+        (p) =>
+          !normalize(p.family).startsWith(cleanSearch) &&
+          normalize(p.name).startsWith(cleanSearch)
+      )
+      .sort(alphabeticalCompare);
+
+    // Priority 3: Species starting with search term (excluding priority 1 & 2)
+    const speciesMatches = plants
+      .filter(
+        (p) =>
+          !normalize(p.family).startsWith(cleanSearch) &&
+          !normalize(p.name).startsWith(cleanSearch) &&
+          normalize(p.species).startsWith(cleanSearch)
+      )
+      .sort(alphabeticalCompare);
+
+    sortedMatches = [...familyMatches, ...nameMatches, ...speciesMatches];
+  } else {
+    // Mode: 'includes' — filter all and sort alphabetically
+    sortedMatches = plants
+      .filter((p) => {
+        const plantFamily = normalize(p.family);
+        const plantName = normalize(p.name);
+        const plantSpecies = normalize(p.species);
         return (
-          plantName.startsWith(cleanSearch) ||
-          plantFamily.startsWith(cleanSearch)
+          plantFamily.includes(cleanSearch) ||
+          plantName.includes(cleanSearch) ||
+          plantSpecies.includes(cleanSearch)
         );
-      }
+      })
+      .sort(alphabeticalCompare);
+  }
 
+  // Deduplicate visible suggestions while maintaining priority and alphabetical order
+  const seen = new Set();
+  const deduped = sortedMatches.filter((plant) => {
+    const visibleKey = `${normalize(plant.family)}|${normalize(plant.name)}|${normalize(plant.species)}`;
+    if (seen.has(visibleKey)) return false;
+    seen.add(visibleKey);
+    return true;
+  });
+
+  setFilteredSuggestions(deduped.slice(0, 10));
+}, [searchTerm, plants, searchMode]);
+
+useEffect(() => {
+  const cleanSearch = normalize(searchTerm);
+
+  if (!cleanSearch) {
+    setFilteredSuggestions([]);
+    return;
+  }
+
+  // Safe field normalizer (handles null, undefined, empty strings)
+  const getField = (obj, field) => normalize(obj?.[field]);
+
+  // Alphabetical comparator builder
+  const compareBy = (...fields) => (a, b) => {
+    for (const field of fields) {
+      const valA = String(a[field] || '');
+      const valB = String(b[field] || '');
+      const comp = valA.localeCompare(valB, undefined, { sensitivity: 'base' });
+      if (comp !== 0) return comp;
+    }
+    return 0;
+  };
+
+  let sortedMatches = [];
+
+  if (searchMode === 'startsWith') {
+    // 1. Tier 1: Family STARTS WITH query (Highest Priority)
+    const familyTier = plants
+      .filter((p) => {
+        const family = getField(p, 'family');
+        return family && family.startsWith(cleanSearch);
+      })
+      .sort(compareBy('family', 'name', 'species'));
+
+    // 2. Tier 2: Genus/Name STARTS WITH query (Exclude Tier 1)
+    const nameTier = plants
+      .filter((p) => {
+        const family = getField(p, 'family');
+        const name = getField(p, 'name');
+        const familyMatched = family && family.startsWith(cleanSearch);
+        const nameMatched = name && name.startsWith(cleanSearch);
+        return !familyMatched && nameMatched;
+      })
+      .sort(compareBy('name', 'family', 'species'));
+
+    // 3. Tier 3: Species STARTS WITH query (Exclude Tier 1 & 2)
+    const speciesTier = plants
+      .filter((p) => {
+        const family = getField(p, 'family');
+        const name = getField(p, 'name');
+        const species = getField(p, 'species');
+        const familyMatched = family && family.startsWith(cleanSearch);
+        const nameMatched = name && name.startsWith(cleanSearch);
+        const speciesMatched = species && species.startsWith(cleanSearch);
+        return !familyMatched && !nameMatched && speciesMatched;
+      })
+      .sort(compareBy('species', 'family', 'name'));
+
+    sortedMatches = [...familyTier, ...nameTier, ...speciesTier];
+  } else {
+    // Mode: 'contains' / 'includes'
+    const containsMatches = plants.filter((p) => {
+      const family = getField(p, 'family');
+      const name = getField(p, 'name');
+      const species = getField(p, 'species');
       return (
-        plantName.includes(cleanSearch) ||
-        plantFamily.includes(cleanSearch)
+        family.includes(cleanSearch) ||
+        name.includes(cleanSearch) ||
+        species.includes(cleanSearch)
       );
     });
 
-    // Step 2: deduplicate visible suggestions
-    // if multiple DB rows represent the same plant label, keep only one in dropdown
-    const seen = new Set();
-    const deduped = matches.filter((plant) => {
-      const visibleKey = `${normalize(plant.name)}|${normalize(plant.family)}|${normalize(plant.species)}`;
-      if (seen.has(visibleKey)) return false;
-      seen.add(visibleKey);
-      return true;
-    });
+    sortedMatches = containsMatches.sort(compareBy('family', 'name', 'species'));
+  }
 
-    // Step 3: limit size
-    setFilteredSuggestions(deduped.slice(0, 8));
-  }, [searchTerm, plants, searchMode]);
+  // Deduplicate visible suggestions while preserving top priorities
+  const seen = new Set();
+  const deduped = sortedMatches.filter((plant) => {
+    const visibleKey = `${getField(plant, 'family')}|${getField(plant, 'name')}|${getField(plant, 'species')}`;
+    if (seen.has(visibleKey)) return false;
+    seen.add(visibleKey);
+    return true;
+  });
+
+  setFilteredSuggestions(deduped.slice(0, 10));
+}, [searchTerm, plants, searchMode]);
 
   const handleSearch = () => {
     const cleanSearch = normalize(searchTerm);
@@ -501,11 +595,11 @@ const ForestSchool = () => {
                     >
                       <div>
                         <p className="font-bold text-gray-900 group-hover:text-green-800 text-sm sm:text-base">
-                          {plant.name || 'Unknown Plant'}
+                          {plant.family || ''} <span className='italic font-light'>{plant.name || ''} {plant.species || ''}</span>
                         </p>
-                        <p className="text-xs text-gray-500 italic uppercase tracking-wider">
-                          {plant.family || 'Unknown Family'} — {plant.species || 'Unknown Species'}
-                        </p>
+                        {/* <p className="text-xs text-gray-500 italic  tracking-wider">
+                          {plant.name || ''} {plant.species || ''}
+                        </p> */}
                       </div>
                       <span className="material-icons-outlined text-gray-300 group-hover:text-green-600 text-sm">
                         north_east
