@@ -207,7 +207,7 @@ const VerificationCenter = () => {
         {/* Left Column: Media & Specimen Info */}
         <div className="lg:col-span-7 space-y-6">
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-4">
-            <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-900 group">
+            <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-amber-50 group">
               <img 
                 src={getImageUrl(gallery[selectedImage])} 
                 alt={currentSubmission?.species || "Herbarium Specimen"}
@@ -295,6 +295,25 @@ const VerificationCenter = () => {
                 </p>
               </div>
             </div>
+
+            {/* Optional reason provided by the botanist at submission time */}
+            <section className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4" aria-label="Reason for submission">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-sm font-bold text-emerald-900">Reason for Submission</h3>
+                <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 border border-emerald-100">
+                  Botanist's note
+                </span>
+              </div>
+              {typeof currentSubmission.submission_reason === "string" && currentSubmission.submission_reason.trim() ? (
+                <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-700">
+                  {currentSubmission.submission_reason}
+                </p>
+              ) : (
+                <p className="mt-3 text-sm italic text-slate-500">
+                  No reason provided by the botanist (optional).
+                </p>
+              )}
+            </section>
 
             {currentSubmission.habitat && (
               <div className="space-y-1">

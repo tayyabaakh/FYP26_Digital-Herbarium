@@ -1,4 +1,7 @@
-export default function SpecimenCard({ title, type, collector, locality, img }) {
+import { useNavigate } from "react-router-dom";
+
+export default function SpecimenCard({ title, type, species, author, collector, locality, img }) {
+ const navigate = useNavigate();
   return (
     <div className="h-full w-full max-w-sm bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl overflow-hidden flex flex-col group transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2">
       
@@ -6,7 +9,7 @@ export default function SpecimenCard({ title, type, collector, locality, img }) 
       <div className="relative h-64 overflow-hidden">
         <img 
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-          src={img || "https://via.placeholder.com/300x150?text=No+Image"} 
+          src={img } 
           alt={title} 
         />
         {/* Gradient Overlay for better contrast */}
@@ -16,7 +19,7 @@ export default function SpecimenCard({ title, type, collector, locality, img }) 
           <span className="inline-block text-[10px] tracking-wider  font-bold text-amber-50 bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
             {type}
           </span>
-          <h3 className="text-2xl font-bold text-amber-50 mt-2 leading-tight">{title}</h3>
+          <h3 className="text-2xl font-bold text-amber-50 mt-2 leading-tight">{title}{species && ` ${species}`}{author && `  ${author}`}</h3>
         </div>
       </div>
 
@@ -34,7 +37,7 @@ export default function SpecimenCard({ title, type, collector, locality, img }) 
         </div>
         
         {/* Enhanced Button */}
-        <button className="mt-auto w-full py-3.5 border border-amber-50/20 text-amber-50 font-semibold  text-xs tracking-[0.2em] hover:bg-amber-50 hover:text-[#121414] transition-all duration-300 rounded-lg">
+        <button onClick={() => navigate(`/family-listing/${encodeURIComponent(familyName)}/species/${encodeURIComponent(speciesName)}`)} className="mt-auto w-full py-3.5 border border-amber-50/20 text-amber-50 font-semibold  text-xs tracking-[0.2em] hover:bg-amber-50 hover:text-[#121414] transition-all duration-300 rounded-lg">
           View Details
         </button>
       </div>

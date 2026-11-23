@@ -16,8 +16,9 @@ const Header = () => {
 
   const navItems = [
     { name: 'Home', path: '/home' },
-    { name: 'Plants database', path: '/listing' },
-    { name: 'Faculty and Staff', path: '/faculty-and-staff' },
+    // { name: 'Plants database', path: '/listing' },
+    { name: 'Family Listing', path: '/family-listing' },
+    // { name: 'Faculty and Staff', path: '/faculty-and-staff' },
     { name: 'About Us', path: '/about' },
     { name: 'Contact', path: '/contact' },
   ];

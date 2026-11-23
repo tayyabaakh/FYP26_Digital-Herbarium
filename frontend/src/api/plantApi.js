@@ -24,3 +24,14 @@ export const fetchHerbariumRecords = async (params = {}) => {
     console.log("Herbarium API Response:", response.data);
     return response.data;
 };
+// Example in plantApi.js
+export const updateHerbariumRecord = async (id, formData) => {
+    const response = await axiosInstance.put(`/herbarium/${id}`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+            // Include your auth token if needed:
+            // 'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+    return response.data;
+};

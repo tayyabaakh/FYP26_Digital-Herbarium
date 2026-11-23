@@ -44,6 +44,10 @@ import PublicOnlyRoute from "./routes/PublicRoute";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import FamilyBrowserScreen from "./components/screens/FamiliyListing/FamilyBrowserScreen";
+import FamilyDetailScreen from "./components/screens/FamiliyListing/FamilyDetail";
+import PlantDetail from "./components/screens/PlantsListing/PlantDetails";
+import SpeciesDetailScreen from "./components/screens/FamiliyListing/SpeciesDetails";
 
 // ============================================================
 // SESSION INITIALIZATION
@@ -130,19 +134,23 @@ const AppRoutes = () => {
   return (
     <AppInit>
       <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-        />
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+      />
       <Routes>
-        
         {/* PUBLIC */}
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
           <Route path="home" element={<Home />} />
           <Route path="about" element={<About />} />
           <Route path="listing" element={<PlantsListing />} />
-          <Route path="plant-details/:id" element={<PlantDetails />} />
+          <Route path="family-listing" element={<FamilyBrowserScreen />} />
+          
+          <Route path="plant-details/:id" element={<PlantDetail />} />
+          {/* Add this dynamic route for family details */}
+          <Route path="family-listing/:familyName" element={<FamilyDetailScreen />} />
+          <Route path="family-listing/:familyName/species/:speciesName" element={<SpeciesDetailScreen />} />
           <Route path="faculty-and-staff" element={<FacultySection />} />
           <Route path="contact" element={<ContactPage />} />
         </Route>

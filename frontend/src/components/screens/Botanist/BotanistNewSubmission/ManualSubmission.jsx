@@ -1,39 +1,39 @@
 import { useState } from "react";
-import {
-  submissionApi,
-  draftSubmissionApi,
-} from "../../../../api/authApi";
+import { submissionApi, draftSubmissionApi } from "../../../../api/authApi";
 
 import FormInput from "../../../commons/Form/FormInput";
 import FormSelect from "../../../commons/Form/FormSelect";
 import FormSectionTitle from "../../../commons/Form/FormSelectionTitle";
 import { toast } from "react-toastify";
+import SubmissionReasonModal from "./SubmissionReasonModal";
 
 const INITIAL_FORM_DATA = {
   name: "",
   family: "",
   // species: "",
-  location_code: "",
+  altitude: "",
   collection_no: "",
-  
+
   habitat: "",
   habit: "",
   flower_color: "",
-  
+
   collector_name: "",
   collection_group_members: "",
-  
+
   collection_date: "",
   locality: "",
-  
+
   latitude: "",
   longitude: "",
-  image: null
+  image: null,
 };
 
 const ManualSubmission = () => {
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showReasonModal, setShowReasonModal] = useState(false);
+  const [submissionReason, setSubmissionReason] = useState("");
 
   // ==========================================
   // FORM CHANGE
@@ -45,152 +45,100 @@ const ManualSubmission = () => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }
-  
-  ));
+    }));
   };
 
-
-const createFormData = () => {
+  const createFormData = (reason = "") => {
     const data = new FormData();
 
+    data.append("submission_reason", reason.trim());
     data.append("name", formData.name.trim());
     data.append("family", formData.family.trim());
     // data.append("species", formData.species.trim());
 
-    data.append(
-        "location_code",
-        formData.location_code.trim()
-    );
+    data.append("altitude", formData.altitude.trim());
+
+    data.append("collection_no", formData.collection_no.trim());
+
+    data.append("habitat", formData.habitat.trim());
+
+    data.append("habit", formData.habit.trim());
+
+    data.append("flower_color", formData.flower_color.trim());
+
+    data.append("collector_name", formData.collector_name.trim());
 
     data.append(
-        "collection_no",
-        formData.collection_no.trim()
+      "collection_group_members",
+      formData.collection_group_members.trim(),
     );
 
-    data.append(
-        "habitat",
-        formData.habitat.trim()
-    );
+    data.append("collection_date", formData.collection_date || "");
 
-    data.append(
-        "habit",
-        formData.habit.trim()
-    );
+    data.append("locality", formData.locality.trim());
 
-    data.append(
-        "flower_color",
-        formData.flower_color.trim()
-    );
+    data.append("latitude", formData.latitude || "");
 
-    data.append(
-        "collector_name",
-        formData.collector_name.trim()
-    );
-
-    data.append(
-        "collection_group_members",
-        formData.collection_group_members.trim()
-    );
-
-    data.append(
-        "collection_date",
-        formData.collection_date || ""
-    );
-
-    data.append(
-        "locality",
-        formData.locality.trim()
-    );
-
-    data.append(
-        "latitude",
-        formData.latitude || ""
-    );
-
-    data.append(
-        "longitude",
-        formData.longitude || ""
-    );
+    data.append("longitude", formData.longitude || "");
 
     // Add image
     if (formData.image) {
-        data.append("image", formData.image);
+      data.append("image", formData.image);
     }
 
     return data;
-};
+  };
 
+  //   ==========================================
+  //   hnadleImageChange
+  //   ==========================================
 
-
-//   ==========================================
-//   hnadleImageChange
-//   ==========================================
-
-const handleImageChange = (e) => {
+  const handleImageChange = (e) => {
     const file = e.target.files[0];
 
     if (!file) return;
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-        alert("Please select an image file.");
-        return;
+      alert("Please select an image file.");
+      return;
     }
 
     // Validate file size - 5 MB
     if (file.size > 5 * 1024 * 1024) {
-        alert("Image size must be less than 5 MB.");
-        return;
+      alert("Image size must be less than 5 MB.");
+      return;
     }
 
     setFormData((prev) => ({
-        ...prev,
-        image: file,
+      ...prev,
+      image: file,
     }));
-};
+  };
 
+  //   ==========================================
+  //   SUBMIT
+  //   ==========================================
 
-//   ==========================================
-//   SUBMIT
-//   ==========================================
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setShowReasonModal(true);
+  };
 
+  const confirmSubmission = async () => {
+    if (isSubmitting) return;
     try {
       setIsSubmitting(true);
-
-      const payload = createFormData();
-
-      console.log("Sending submission:", payload);
-
-      for (const [key, value] of payload.entries()) {
-            console.log(key, value);
-        }
-
-      const response = await submissionApi(payload);
-
-      console.log(
-        "Submission successful:",
-        response.data
-      );
-
+      const payload = createFormData(submissionReason);
+      await submissionApi(payload);
       toast.success("Plant submission sent successfully!");
-
-      setFormData(INITIAL_FORM_DATA);
+      setFormData({ ...INITIAL_FORM_DATA });
+      setSubmissionReason("");
+      setShowReasonModal(false);
     } catch (error) {
       console.error("Submission failed:", error);
-
-      console.error(
-        "Backend response:",
-        error.response?.data
-      );
-
-      alert(
-        error.response?.data?.message ||
-          "Failed to submit plant. Please try again."
-      );
+      toast.error(error.response?.data?.message || "Failed to submit plant. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -204,28 +152,20 @@ const handleImageChange = (e) => {
     try {
       setIsSubmitting(true);
 
-      const payload = {
-        ...createFormData(),
-        status: "draft",
-      };
+      const payload = createFormData();
+      payload.append("status", "draft");
 
       console.log("Saving draft:", payload);
 
       const response = await draftSubmissionApi(payload);
 
-      console.log(
-        "Draft saved:",
-        response.data
-      );
+      console.log("Draft saved:", response.data);
 
       alert("Draft saved successfully!");
     } catch (error) {
       console.error("Draft save failed:", error);
 
-      alert(
-        error.response?.data?.message ||
-          "Failed to save draft."
-      );
+      alert(error.response?.data?.message || "Failed to save draft.");
     } finally {
       setIsSubmitting(false);
     }
@@ -234,7 +174,6 @@ const handleImageChange = (e) => {
   return (
     <form onSubmit={handleSubmit}>
       <div className="mt-6 rounded-xl border border-[#dce7df] bg-white p-6">
-
         {/* ==========================================
             TAXONOMIC INFORMATION
         ========================================== */}
@@ -242,7 +181,6 @@ const handleImageChange = (e) => {
         <FormSectionTitle title="Taxonomic Information" />
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-
           <FormInput
             label="Scientific Name"
             name="name"
@@ -292,7 +230,6 @@ const handleImageChange = (e) => {
             onChange={handleChange}
             placeholder="e.g. White, Yellow, Purple"
           />
-
         </div>
 
         {/* ==========================================
@@ -300,11 +237,9 @@ const handleImageChange = (e) => {
         ========================================== */}
 
         <div className="mt-7">
-
           <FormSectionTitle title="Collection Details" />
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-
             <FormInput
               label="Collection No."
               name="collection_no"
@@ -314,15 +249,7 @@ const handleImageChange = (e) => {
             />
 
             <FormInput
-              label="Location Code"
-              name="location_code"
-              value={formData.location_code}
-              onChange={handleChange}
-              placeholder="e.g. KHI-UOK-001"
-            />
-
-            <FormInput
-              label="Collector Name"
+              label="Collector Name(s)"
               name="collector_name"
               value={formData.collector_name}
               onChange={handleChange}
@@ -330,19 +257,14 @@ const handleImageChange = (e) => {
               required
             />
 
-            <FormInput
+            {/* <FormInput
               label="Collection Group Members"
               name="collection_group_members"
               value={formData.collection_group_members}
               onChange={handleChange}
               placeholder="e.g. Ali, Ahmed, Sara"
-            />
-
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-
-            <FormInput
+            /> */}
+              <FormInput
               label="Collection Date"
               name="collection_date"
               type="date"
@@ -350,19 +272,29 @@ const handleImageChange = (e) => {
               onChange={handleChange}
               required
             />
-
-            <FormInput
+             <FormInput
               label="Locality"
               name="locality"
               value={formData.locality}
               onChange={handleChange}
               placeholder="e.g. University of Karachi Botanical Garden"
             />
-
+             <FormInput
+              label="Habitat"
+              name="habitat"
+              value={formData.habitat}
+              onChange={handleChange}
+              placeholder="e.g. Rocky slopes, riverbanks, forest floor..."
+            />
           </div>
 
-          <div className="mt-4">
+          {/* <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+          
 
+           
+          </div> */}
+
+          {/* <div className="mt-4">
             <label className="mb-2 block text-[13px] font-medium text-[#0b2d1d]">
               Habitat
             </label>
@@ -375,9 +307,7 @@ const handleImageChange = (e) => {
               placeholder="e.g. Rocky slopes, riverbanks, forest floor..."
               className="w-full resize-none rounded-lg border border-[#cfe4d5] bg-[#f1fbf4] px-3 py-3 text-[13px] outline-none placeholder:text-[#88a496] focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]"
             />
-
-          </div>
-
+          </div> */}
         </div>
 
         {/* ==========================================
@@ -385,11 +315,16 @@ const handleImageChange = (e) => {
         ========================================== */}
 
         <div className="mt-7">
-
           <FormSectionTitle title="Geographic Information" />
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-
+            <FormInput
+              label="Altitude"
+              name="altitude"
+              value={formData.altitude}
+              onChange={handleChange}
+              placeholder="e.g. 1000 m"
+            />
             <FormInput
               label="Latitude"
               name="latitude"
@@ -409,9 +344,7 @@ const handleImageChange = (e) => {
               onChange={handleChange}
               placeholder="e.g. 67.1148"
             />
-
           </div>
-
         </div>
 
         {/* ==========================================
@@ -419,21 +352,18 @@ const handleImageChange = (e) => {
         ========================================== */}
 
         <div className="mt-7">
-
           <FormSectionTitle title="Plant Images" />
 
           <label
             htmlFor="image"
             className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#cbded1] bg-[#f5faf7] hover:border-[#16a34a]"
           >
-
             <p className="text-[14px] font-medium text-[#0b2d1d]">
               Upload plant images
             </p>
 
             <p className="mt-1 text-[11px] text-[#739080]">
-              Whole plant, leaves, flowers, seeds — JPG/PNG,
-              max 20MB each
+              Whole plant, leaves, flowers, seeds — JPG/PNG, max 20MB each
             </p>
 
             <input
@@ -444,15 +374,8 @@ const handleImageChange = (e) => {
               className="hidden"
               onChange={handleImageChange}
             />
-             {formData.image && (
-        <p>
-            Selected image: {formData.image.name}
-        </p>
-    )}
-
+            {formData.image && <p>Selected image: {formData.image.name}</p>}
           </label>
-
-
         </div>
 
         {/* ==========================================
@@ -460,7 +383,6 @@ const handleImageChange = (e) => {
         ========================================== */}
 
         <div className="mt-7 flex justify-end gap-3">
-
           <button
             type="button"
             onClick={handleSaveDraft}
@@ -475,14 +397,18 @@ const handleImageChange = (e) => {
             disabled={isSubmitting}
             className="rounded-lg bg-[#16a34a] px-6 py-2.5 text-[13px] font-medium text-white hover:bg-[#12863c] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isSubmitting
-              ? "Submitting..."
-              : "Submit for Review"}
+            {isSubmitting ? "Submitting..." : "Submit for Review"}
           </button>
-
         </div>
-
       </div>
+      <SubmissionReasonModal
+        open={showReasonModal}
+        reason={submissionReason}
+        setReason={setSubmissionReason}
+        onCancel={() => setShowReasonModal(false)}
+        onConfirm={confirmSubmission}
+        submitting={isSubmitting}
+      />
     </form>
   );
 };

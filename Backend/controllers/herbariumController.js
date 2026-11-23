@@ -1,4 +1,5 @@
 const db = require("../config/db");
+const cloudinary = require('../config/cloudinary'); 
 
 const getHerbariumRecords = async (req, res) => {
     try {
@@ -48,7 +49,7 @@ const getHerbariumRecords = async (req, res) => {
         const [countResult] = await db.query(countQuery, queryParams);
         const totalRecords = countResult[0]?.total || 0;
 
-        // 2. Fetch records safely without breaking missing column definitions
+        // 2. Fetch records safely with 3-Tier Hierarchical Sorting (Family -> Genus -> Species)
         const dataQuery = `
             SELECT 
                 COALESCE(specimen_id_gh_number, 'N/A') AS recordID,
@@ -62,7 +63,7 @@ const getHerbariumRecords = async (req, res) => {
                 image_url AS imageUrl
             FROM herbarium_data
             ${whereClause}
-            ORDER BY specimen_id_gh_number DESC
+            ORDER BY family ASC, name ASC, species ASC
             LIMIT ? OFFSET ?
         `;
 
@@ -103,6 +104,72 @@ const getHerbariumRecords = async (req, res) => {
     }
 };
 
+const updateHerbariumRecord = async (req, res) => {
+    try {
+        const { id } = req.params; // specimen_id_gh_number
+        const {
+            scientificName, // Mapped to 'name' (Genus) in your DB
+            species,
+            family,
+            collectorName,  // Mapped to 'collector_name'
+            collectionDate, // Mapped to 'date'
+            habitat
+        } = req.body;
+
+        // 1. Handle optional image upload to Cloudinary
+        let imageUrl = null;
+        if (req.file) {
+            const result = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    {
+                        folder: "flora-digitalis/specimens",
+                        resource_type: "image"
+                    },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result);
+                    }
+                );
+                uploadStream.end(req.file.buffer);
+            });
+            imageUrl = result.secure_url;
+        }
+
+        // 2. Build update query
+        const query = `
+            UPDATE herbarium_data 
+            SET name = ?, species = ?, family = ?, collector_name = ?, date = ?, habitat = ?, image_url = COALESCE(?, image_url)
+            WHERE specimen_id_gh_number = ?
+        `;
+
+        const [result] = await db.query(query, [
+            scientificName || null,
+            species || null,
+            family ? family.toUpperCase() : null,
+            collectorName || null,
+            collectionDate || null,
+            habitat || null,
+            imageUrl || null, 
+            id
+        ]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: "Record not found in database." });
+        }
+
+        return res.status(200).json({ 
+            success: true, 
+            message: "Record successfully updated in database!",
+            imageUrl: imageUrl 
+        });
+
+    } catch (error) {
+        console.error("Error updating herbarium record:", error);
+        return res.status(500).json({ success: false, message: "Server error while updating record.", error: error.message });
+    }
+};
+
 module.exports = {
-    getHerbariumRecords
+    getHerbariumRecords,
+    updateHerbariumRecord
 };
